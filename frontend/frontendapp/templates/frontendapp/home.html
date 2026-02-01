@@ -1,0 +1,86 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>UKNOW</title>
+        <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            line-height: 1.5;
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
+        header {
+            background: #2563eb;
+            color: #ffffff;
+            padding: 24px;
+            text-align: center;
+        }
+
+        a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        footer {
+            text-align: center;
+            padding: 24px;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .textbox {
+            display: block;
+            width: 100%;
+            max-width: 640px;
+            margin: 24px auto;
+            padding: 8px 12px;
+        }
+            .checkbox-group {
+            max-width: 640px;
+            margin: 16px auto;
+            display: flex;
+            gap: 16px;
+        }
+        </style>
+    </head>
+    <body>
+        <header>
+        <h1>UKNOW</h1>
+        <p>{{ tagline }}</p>
+        <button class="account-button">Account</button>
+        </header>
+
+        <main>
+
+        <input type="text" class="textbox" placeholder="test">
+        
+
+        <div class="checkbox-group">
+                <label>
+            GPA:
+            <input type="number" class="number-input" name="gpa" min="0" max="4" step="0.5" placeholder="67">
+            </label>
+            <label>
+            University:
+            <select class="dropdown" name="university">s
+                <option value="hi">hi</option>
+                <option value="bye">bye</option>
+            </select>
+            </label>
+        </div>
+
+        <section class="features">
+            {% for feature in features %}
+            <div class="feature-card">
+            <h2>Feature</h2>
+            <p>{{ feature }}</p>
+            </div>
+            {% endfor %}
+        </section>
+        </main>
+    </body>
+    </html>
