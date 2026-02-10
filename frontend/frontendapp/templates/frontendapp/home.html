@@ -14,15 +14,12 @@
         }
 
         header {
-            background: #2563eb;
+            background: #102b66;
             color: #ffffff;
-            padding: 24px;
+            padding: 4px;
             text-align: center;
-        }
-
-        a {
-            color: #2563eb;
-            text-decoration: none;
+            font-size: 20px;
+            line-height: 0.15;
         }
 
         footer {
@@ -32,47 +29,98 @@
             color: #64748b;
         }
 
+        .subCon {
+            margin: 0px auto 0px 500px;
+            width: 1000px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .subTitle {
+            text-align: left;
+            font-size: 25px;
+            padding-top: 50px;
+        }
+
         .textbox {
             display: block;
             width: 100%;
             max-width: 640px;
             margin: 24px auto;
             padding: 8px 12px;
+            font-size: 20px;
         }
-            .checkbox-group {
+        .filterzz {
             max-width: 640px;
             margin: 16px auto;
             display: flex;
-            gap: 16px;
+            gap: 40px;
+            justify-content:center; 
+            transform: scale(1.25);
         }
+        .searchB {
+            background:#3f4145;
+            color: white;
+            padding: 7px 14px;
+            font-size: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .searchB:hover {
+            background:#4c4e53;
+        }
+        .searchB:active {
+            transform: scale(0.95);
+        }
+        .homepageButton {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .homepageButton h1 {
+            margin: 0;
+        }
+
         </style>
     </head>
     <body>
         <header>
-        <h1>UKNOW</h1>
-        <p>{{ tagline }}</p>
-        <button class="account-button">Account</button>
+        <button class="homepageButton" onclick="window.location.href='/'"><h1>UKNOW</h1></button> 
         </header>
-
         <main>
-
-        <input type="text" class="textbox" placeholder="test">
-        
-
-        <div class="checkbox-group">
-                <label>
-            GPA:
-            <input type="number" class="number-input" name="gpa" min="0" max="4" step="0.5" placeholder="67">
-            </label>
-            <label>
-            University:
-            <select class="dropdown" name="university">s
-                <option value="hi">hi</option>
-                <option value="bye">bye</option>
-            </select>
-            </label>
+        <div class="subCon">
+            <div class="subTitle">
+            </div>
         </div>
 
+        <form method="get" action="/result">
+
+            <input name="name" type="text" class="textbox" placeholder="Type the program name in here!">
+            <div class="filterzz">
+                <label>
+                GPA:
+                <input name="gpa" type="number" class="number-input" name="gpa" min="0" max="100" step="0.5" placeholder="67">
+                </label>
+                <label>
+                &nbsp; &nbsp; University:
+                <select name="uni" class="dropdown" name="university">sn
+                    <option value="blank">select</option>
+                    <option value="bye">yo im selection</option>
+                </select>
+                &nbsp; &nbsp; &nbsp; 
+                </label>
+                <label>
+                <button class="searchB">SEARCH</button>
+                </label>
+            </div>
+
+        </form>
+        
+        
+        <!--
         <section class="features">
             {% for feature in features %}
             <div class="feature-card">
@@ -81,6 +129,7 @@
             </div>
             {% endfor %}
         </section>
+        -->
         </main>
     </body>
     </html>
