@@ -106,25 +106,35 @@
         <div class="tables">
             <table class="Logo">
                 <tr><th></th></tr>
-                <tr><td>ImageImageImageImage</td></tr>
-                <tr><td>ImageImageImageImage</td></tr>
-                <tr><td>ImageImageImageImage</td></tr>
-                <tr><td>ImageImageImageImage</td></tr>
-                <tr><th style="background-color: #acacac;"></th></tr>
+                {% for row in results %}
+                <tr><td>{{ row.university_name }}</td></tr>
+                {% endfor %}
+                <tr><th></th></tr>
             </table>
             <div class="table64">
+                {% for row in results %}
                 <table class="behind">
                     <tr><th></th><th></th></tr>
                     <tr style="line-height: 4"><td></td><td>&nbsp;</td></tr>
                     <tr><td></td><td>&nbsp;</td></tr>
-                    <tr><td style="text-align:right;">Average GPA: 95%</td><td style="text-align:center;">Risk: Match</td></tr>
+                    <tr>
+                        <td style="text-align:right;">Average GPA: {{ row.admission_average }}%</td>
+                        <td style="text-align:center;">Risk: Match</td>
+                    </tr>
                     <tr><th></th><th></th></tr>
                 </table>
                 <table class="front">
                     <tr><th></th></tr>
-                    <tr><td style="line-height: 4"><a href="/detail/?id=67" target="_blank"><b>Bachelor's Software Engineering (Co-op)</b></a></td></tr>
-                    <tr><td>University of Waterloo</td></tr>
+                    <tr>
+                        <td style="line-height: 4">
+                            <a href="/detail/?id={{ row.id }}" target="_blank">
+                                <b>{{ row.program }}</b>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr><td>{{ row.university_name }}</td></tr>
                 </table>
+                {% endfor %}
             </div>
         </div>
         

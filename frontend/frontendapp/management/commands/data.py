@@ -6,7 +6,6 @@ class Command(BaseCommand):
     help = "Pushes rows of data from csv file into mySQL database"
     def handle(self, *args, **options):
         self.push()
-        self.pull()
     def push(self):
         pushin = []
         with open('/Users/leon/Developer/UKNOW/source_files/totalreparsed.csv', mode='r', encoding='latin-1') as line:
@@ -21,14 +20,5 @@ class Command(BaseCommand):
                 PUSH_MESSAGE = "INSERT INTO grade_results(acceptance_year, program, university_name, admission_average, acceptance_status) VALUES (%s, %s, %s, %s, %s)"
                 cursor.execute(PUSH_MESSAGE, row)
             print(cursor.rowcount, "record inserted") 
-    def pull(self):
-        uniname = str(input("please input university name: "))
-        average = float(input("please input your top 6 average (three sig figs): "))
-        program = str(input("please input the desired program:"))
-        returnout = []
-        PULL_MESSAGE = "SELECT * FROM grade_results WHERE program = %s AND university_name = %s AND admission_average = %s"
-        with connection.cursor() as cursor:
-            cursor.execute(PULL_MESSAGE, (program, uniname, average))
-            returnout = cursor.fetchall()
-        print(returnout)
+
 
