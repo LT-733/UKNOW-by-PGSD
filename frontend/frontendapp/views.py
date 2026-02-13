@@ -1,46 +1,57 @@
 from django.shortcuts import render
+from django.db import connection
 import requests
 
+
 def home(request):
+    universities = []
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT DISTINCT university_name FROM grade_results ORDER BY university_name')
+            rows = cursor.fetchall()
+            universities = [r[0] for r in rows if r[0]]
+    except Exception:
+        universities = []
+
     context = {
         "app_name": "UKNOW",
         "tagline": "A university selection lookup table",
-        "features": [
-            "testing boi"
-        ],
+        "features": ["testing boi"],
+        "universities": universities,
     }
     return render(request, "frontendapp/home.html", context)
 
 
 def result(request):
     name = request.GET.get("name")
-    gpa = float(request.GET.get("gpa"))
     uni = request.GET.get("uni")
 
-    if not name or not gpa or not uni:
-        return render(request, "frontendapp/result.html", {"error": "Please provide all fields."})
+    if not name:
+        return render(request, "frontendapp/result.html", {"error": "Please provide a program name."})
 
-    response = requests.post(
-        "http://127.0.0.1:8000/api/pull/",
-        json={
-            "program": name,
-            "average": gpa,
-            "university": uni,
-        },
-        timeout=5,
-    )
+    sql = "SELECT * FROM grade_results WHERE LOWER(program) LIKE %s"
+    params = [f"%{name.lower()}%"]
+    if uni:
+        sql += " AND university_name = %s"
+        params.append(uni)
+    sql += " LIMIT 1000"
 
-    results = response.json() if response.status_code == 200 else []
-    print(results)
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(sql, params)
+            rows = cursor.fetchall()
+            cols = [c[0] for c in cursor.description]
+            results = [dict(zip(cols, r)) for r in rows]
+    except Exception:
+        results = []
 
     context = {
-        "results": results,
-        "program": name,
-        "average": gpa,
-        "university": uni,
+        'results': results,
+        'program': name,
+        'university': uni,
     }
 
-    return render(request, "frontendapp/result.html", context)
+    return render(request, 'frontendapp/result.html', context)
 
 def detail(request):
     id = request.GET.get("id")

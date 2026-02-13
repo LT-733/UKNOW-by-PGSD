@@ -98,6 +98,7 @@
         <header>
         <button class="homepageButton" onclick="window.location.href='/'"><h1>UKNOW</h1></button> 
         </header>
+        
         <div class="resultText">
             <label>
                 <b>Result</b>
@@ -111,6 +112,13 @@
                 {% endfor %}
                 <tr><th></th></tr>
             </table>
+            <div style="margin-left:20px;">
+                {% if plot_svg %}
+                    {{ plot_svg|safe }}
+                {% elif plot_data %}
+                    <img src="data:image/png;base64,{{ plot_data }}" alt="Admission averages" style="max-width:600px; border:1px solid #ccc; padding:4px; background:white;" />
+                {% endif %}
+            </div>
             <div class="table64">
                 {% for row in results %}
                 <table class="behind">
