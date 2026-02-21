@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.db import connection
+from django.core.paginator import Paginator
 import requests
 
 
@@ -45,8 +46,12 @@ def result(request):
     except Exception:
         results = []
 
+    paginator = Paginator(results, 15)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        'results': results,
+        'page_obj': page_obj,
         'program': name,
         'university': uni,
     }

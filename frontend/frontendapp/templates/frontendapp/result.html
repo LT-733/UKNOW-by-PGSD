@@ -62,7 +62,7 @@
             justify-content: center;
             border-left: 3px solid #4e0800;
             border-right: 3px solid #4e0800;
-            width: 700px;
+            width: 500px;
             margin: 0 auto;
         }
         .table64 {
@@ -91,7 +91,13 @@
         table.front tr:nth-child(3) {
             background-color: #d9d9d9;
         }
-        
+        .pagination {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .pagination .disabled {
+            color: #999;
+        }
         </style>
     </head>
     <body>
@@ -104,15 +110,9 @@
                 <b>Result</b>
             </label>
         </div>
+
         <div class="tables">
-            <table class="Logo">
-                <tr><th></th></tr>
-                {% for row in results %}
-                <tr><td>{{ row.university_name }}</td></tr>
-                {% endfor %}
-                <tr><th></th></tr>
-            </table>
-            <div style="margin-left:20px;">
+            <div>
                 {% if plot_svg %}
                     {{ plot_svg|safe }}
                 {% elif plot_data %}
@@ -120,7 +120,7 @@
                 {% endif %}
             </div>
             <div class="table64">
-                {% for row in results %}
+                {% for row in page_obj %}
                 <table class="behind">
                     <tr><th></th><th></th></tr>
                     <tr style="line-height: 4"><td></td><td>&nbsp;</td></tr>
@@ -141,10 +141,35 @@
                         </td>
                     </tr>
                     <tr><td>{{ row.university_name }}</td></tr>
+                    <tr><td>&nbsp;</td></tr>
+                    <tr><td>&nbsp;</td></tr>
                 </table>
+                {% empty %}
+                <p style="text-align: center; padding: 40px; font-size: 35px;">No results found. Try changing your filters</p>
                 {% endfor %}
             </div>
         </div>
-        
+
+        {% if page_obj.has_other_pages %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?name={{ program }}{% if university %}&uni={{ university }}{% endif %}&page=1">First</a> |
+                <a href="?name={{ program }}{% if university %}&uni={{ university }}{% endif %}&page={{ page_obj.previous_page_number }}">Previous</a>
+            {% else %}
+                <span class="disabled">First</span> |
+                <span class="disabled">Previous</span>
+            {% endif %}
+
+            | Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }} |
+
+            {% if page_obj.has_next %}
+                <a href="?name={{ program }}{% if university %}&uni={{ university }}{% endif %}&page={{ page_obj.next_page_number }}">Next</a> |
+                <a href="?name={{ program }}{% if university %}&uni={{ university }}{% endif %}&page={{ page_obj.paginator.num_pages }}">Last</a>
+            {% else %}
+                <span class="disabled">Next</span> |
+                <span class="disabled">Last</span>
+            {% endif %}
+        </div>
+        {% endif %}
     </body>
 </html>

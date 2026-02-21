@@ -10,7 +10,7 @@ class Command(BaseCommand):
         self.push()
     def push(self):
         pushin = []
-        csv_path = Path(settings.BASE_DIR).parent / 'source_files' / 'totalreparsed.csv'
+        csv_path = Path(settings.BASE_DIR).parent / 'source_files' / 'parsed_data.csv'
         with open(str(csv_path), mode='r', encoding='latin-1') as line:
             reader = csv.reader(line)
             for row in reader:
