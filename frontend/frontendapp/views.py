@@ -49,7 +49,7 @@ def result(request):
                 if(row['acceptance_status'] == 'accepted'):
                     flag = True
                     for new in newresults:
-                        if(row['university_name'] == new[1]):
+                        if(row['university_name'] == new[1] and row['program'] == new[0]):
                             new[2] = (new[2] * new[3] + row['admission_average'])/(new[3] + 1)
                             new[3] += 1
                             flag = False
