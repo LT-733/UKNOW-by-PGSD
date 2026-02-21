@@ -1,0 +1,59 @@
+import matplotlib.pyplot as pyplot
+import base64
+from io import BytesIO
+from django.db import connection
+
+def graph_to_img():
+    buffer = BytesIO()
+    pyplot.savefig(buffer, format='png')
+    buffer.seek(0)
+    png = buffer.getvalue()
+    graph = base64.b64encode(png).decode('utf-8')
+    buffer.close()
+    return(graph)
+
+def getplot(name, uni):
+    sql = "SELECT * FROM grade_results WHERE LOWER(program) LIKE %s"
+    params = [f"%{name.lower()}%"]
+    sql += " AND university_name = %s"
+    params.append(uni)
+    sql += " LIMIT 1000"
+
+    avgs = []
+    years = []
+    try:
+        with connection.cursor() as cursor:
+            
+            cursor.execute(sql, params)
+            rows = cursor.fetchall()
+            
+            for row in rows:
+                if(row[0] not in years):
+                    years.append(row[0])
+
+            years.sort()
+
+            for i in range(len(years)):
+                avgs.append(0)
+                count = 0
+                for row in rows:
+                    if(row[0] == years[i]):
+                        avgs[i] += row[3]
+                        count += 1
+                    
+                avgs[-1] /= count
+            
+    except Exception as e:
+        print(e)
+
+    if(len(years) == 0):
+        return(None)
+    #GRAPH FORMATTING GOES HERE
+    pyplot.switch_backend('AGG')
+    pyplot.figure(figsize = (10, 5))
+    pyplot.title("Acceptance Averages By Year")
+    pyplot.plot(years, avgs)
+    pyplot.xlabel("Year")
+    pyplot.ylabel("Average")
+    pyplot.xticks(years)
+    return graph_to_img()

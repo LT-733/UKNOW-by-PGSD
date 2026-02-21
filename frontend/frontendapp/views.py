@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.db import connection
 from django.core.paginator import Paginator
 import requests
+from .utils import getplot
 
 
 def home(request):
@@ -43,7 +44,26 @@ def result(request):
             rows = cursor.fetchall()
             cols = [c[0] for c in cursor.description]
             results = [dict(zip(cols, r)) for r in rows]
-    except Exception:
+            newresults = []
+            for row in results:
+                if(row['acceptance_status'] == 'accepted'):
+                    flag = True
+                    for new in newresults:
+                        if(row['university_name'] == new[1]):
+                            new[2] = (new[2] * new[3] + row['admission_average'])/(new[3] + 1)
+                            new[3] += 1
+                            flag = False
+
+                    if(flag):
+                        newresults.append([row['program'], row['university_name'], row['admission_average'], 1])
+
+            for new in newresults:
+                new[2] = round(new[2], 1)
+
+            results = [dict(zip(cols[1:3], new[:-1])) for new in newresults]
+
+    except Exception as e:
+        print(e)
         results = []
 
     paginator = Paginator(results, 15)
@@ -60,5 +80,7 @@ def result(request):
 
 def detail(request):
     id = request.GET.get("id")
-
-    return render(request, "frontendapp/detail.html")
+    name = "Software Engineering"#request.GET.get("name")
+    uni = "University of Waterloo"#request.GET.get("uni")
+    graph = getplot(name, uni)
+    return render(request, "frontendapp/detail.html", {'graph': graph})

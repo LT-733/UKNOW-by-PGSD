@@ -88,6 +88,9 @@
             <table class="info">
                 <tr><th>Bachelor's Software Engineering (Co-op)</th></tr>
                 <tr><td>Software engineering is a branch of both computer science and engineering focused on designing, developing, testing, and maintaining software applications.[1] It involves applying engineering principles and computer programming expertise to develop software systems that meet user needs.[2][3][4][5] In the tech industry, the title software engineer is often used aspirationally, even though many such roles are fundamentally programming positions and lack the formal regulation associated with traditional engineering.[6] A software engineer applies a software development process,[2][7] that involves defining, implementing, testing, managing, and maintaining software systems, as well as developing the software development process itself.</td></tr>
+                {% if graph %}
+                    <tr><td><img src="data:image/png;base64, {{graph|safe}}"></td></tr>
+                {% endif %}
                 <tr><td style="text-align:right;"><a href="https://uwaterloo.ca/">University page</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://en.wikipedia.org/wiki/University_of_Waterloo_Faculty_of_Engineering">Wikipedia program page</a></td></tr>
             </table>
         </div>
