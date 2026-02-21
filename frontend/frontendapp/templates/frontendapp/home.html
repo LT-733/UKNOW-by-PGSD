@@ -106,9 +106,11 @@
                 </label>
                 <label>
                 &nbsp; &nbsp; University:
-                <select name="uni" class="dropdown" name="university">sn
-                    <option value="blank">select</option>
-                    <option value="bye">yo im selection</option>
+                <select name="uni" class="dropdown">
+                    <option value="">select</option>
+                    {% for u in universities %}
+                        <option value="{{ u }}">{{ u }}</option>
+                    {% endfor %}
                 </select>
                 &nbsp; &nbsp; &nbsp; 
                 </label>

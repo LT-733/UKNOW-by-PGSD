@@ -14,8 +14,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 
-# Make sure .env is loaded
-load_dotenv('/Users/leon/Developer/UKNOW/frontend/frontend/.env')
+# Load local .env (next to this settings.py) so DB creds are available
+load_dotenv(str(Path(__file__).resolve().parent / '.env'))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'frontendapp'
+    'frontendapp',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -78,13 +79,14 @@ WSGI_APPLICATION = 'frontend.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-'default': {
-    'ENGINE': 'django.db.backends.mysql',
-    'NAME': os.getenv('NAME'),
-    'USER': os.getenv('DB_USER'),
-    'PASSWORD': os.getenv('PASSWORD'),
-    'HOST': 'riku.shoshin.uwaterloo.ca',
-}
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.getenv('NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('PASSWORD'),
+        'HOST': os.getenv('DB_HOST', 'riku.shoshin.uwaterloo.ca'),
+        'PORT': os.getenv('DB_PORT', '3306'),
+    }
 }
 
 
