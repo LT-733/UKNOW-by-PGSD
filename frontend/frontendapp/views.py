@@ -45,7 +45,6 @@ def result(request):
             results = [dict(zip(cols, r)) for r in rows]
             newresults = []
             for row in results:
-                print(row)
                 if(row['acceptance_status'] == 'accepted'):
                     flag = True
                     for new in newresults:
