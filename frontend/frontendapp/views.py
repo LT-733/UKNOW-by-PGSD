@@ -60,7 +60,7 @@ def result(request):
             for new in newresults:
                 new[2] = round(new[2], 1)
 
-            results = [dict(zip(cols[1:3], new[:-1])) for new in newresults]
+            results = [dict(zip(cols[1:4], new[:-1])) for new in newresults]
 
     except Exception as e:
         print(e)
