@@ -27,6 +27,14 @@ def home(request):
 def result(request):
     name = request.GET.get("name")
     uni = request.GET.get("uni")
+    # parse user's average (supports ?avg= or ?average= or ?score=)
+    user_avg = None
+    avg_param = request.GET.get('avg') or request.GET.get('average') or request.GET.get('score')
+    if avg_param:
+        try:
+            user_avg = float(avg_param)
+        except Exception:
+            user_avg = None
 
     if not name:
         return render(request, "frontendapp/result.html", {"error": "Please provide a program name."})
@@ -60,7 +68,28 @@ def result(request):
             for new in newresults:
                 new[2] = round(new[2], 1)
 
-            results = [dict(zip(cols[1:4], new[:-1])) for new in newresults]
+            results = []
+            for idx, new in enumerate(newresults, start=1):
+                avg_val = new[2]
+                risk = None
+                try:
+                    if user_avg is not None and avg_val is not None:
+                        if (user_avg - avg_val) >= 2:
+                            risk = 'backup'
+                        elif abs(user_avg - avg_val) <= 2:
+                            risk = 'match'
+                        else:
+                            risk = 'reach'
+                except Exception:
+                    risk = None
+
+                results.append({
+                    'id': idx,
+                    'program': new[0],
+                    'university_name': new[1],
+                    'admission_average': avg_val,
+                    'risk': risk,
+                })
 
     except Exception as e:
         print(e)

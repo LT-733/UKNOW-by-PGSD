@@ -145,7 +145,9 @@
                         {% if row.admission_average %}
                             <div class="avg">Average GPA: <strong>{{ row.admission_average }}%</strong></div>
                         {% endif %}
-                        <div class="risk">Risk: <em>Match</em></div>
+                            {% if row.risk %}
+                                <div class="risk">Risk: <em>{{ row.risk|capfirst }}</em></div>
+                            {% endif %}
                     </div>
                     <div class="result-right">
                         <a href="/detail/?id={{ row.id }}" target="_blank" class="program-link"><b>{{ row.program }}</b></a>
