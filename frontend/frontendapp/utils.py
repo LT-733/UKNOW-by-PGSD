@@ -52,8 +52,16 @@ def getplot(name, uni):
     pyplot.switch_backend('AGG')
     pyplot.figure(figsize = (10, 5))
     pyplot.title("Acceptance Averages By Year")
-    pyplot.plot(years, avgs)
+    pyplot.bar(years, avgs)
     pyplot.xlabel("Year")
     pyplot.ylabel("Average")
     pyplot.xticks(years)
+    pyplot.ylim(50, 100)
+    pyplot.yticks(range(50,101, 5))
+    for p in range(len(avgs)):
+        pyplot.annotate(round(avgs[p], 2), xy=(years[p],avgs[p]),
+                ha='center',
+                va='center',
+                xytext=(0, 10),
+                textcoords='offset points')
     return graph_to_img()

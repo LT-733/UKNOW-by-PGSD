@@ -108,8 +108,33 @@ def result(request):
     return render(request, 'frontendapp/result.html', context)
 
 def detail(request):
-    id = request.GET.get("id")
-    name = "Software Engineering"#request.GET.get("name")
-    uni = "University of Waterloo"#request.GET.get("uni")
+    #id = request.GET.get("id")
+    name = request.GET.get("name")
+    uni = request.GET.get("uni")
+    msg = "SELECT * FROM program_descriptions WHERE LOWER(university) LIKE %s AND LOWER(program) LIKE %s"
+    description = ""
+    link = ""
     graph = getplot(name, uni)
-    return render(request, "frontendapp/detail.html", {'graph': graph})
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(msg, [f"%{uni.lower()}%", f"%{name.lower()}%"])
+            #cursor.execute(msg, uni.lower(), name.lower())
+            rows = cursor.fetchall()
+            if not rows:
+                print(f"no data found")
+                raise Exception
+            description += rows[0][2]
+            link += rows[0][3]
+
+
+    except Exception as e:
+        print(f"database error: {e}")
+        #return 1
+    
+    return render(request, "frontendapp/detail.html", {
+        'graph': graph,
+        'university': uni, 
+        'name': name, 
+        'description': description, 
+        'link': link
+    })
