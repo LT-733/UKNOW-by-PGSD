@@ -27,6 +27,14 @@ def home(request):
 def result(request):
     name = request.GET.get("name")
     uni = request.GET.get("uni")
+    # parse user's average (supports ?avg= or ?average= or ?score=)
+    user_avg = None
+    avg_param = request.GET.get('avg') or request.GET.get('average') or request.GET.get('score')
+    if avg_param:
+        try:
+            user_avg = float(avg_param)
+        except Exception:
+            user_avg = None
 
     if not name:
         return render(request, "frontendapp/result.html", {"error": "Please provide a program name."})
@@ -60,7 +68,28 @@ def result(request):
             for new in newresults:
                 new[2] = round(new[2], 1)
 
-            results = [dict(zip(cols[1:3], new[:-1])) for new in newresults]
+            results = []
+            for idx, new in enumerate(newresults, start=1):
+                avg_val = new[2]
+                risk = None
+                try:
+                    if user_avg is not None and avg_val is not None:
+                        if (user_avg - avg_val) >= 2:
+                            risk = 'backup'
+                        elif abs(user_avg - avg_val) <= 2:
+                            risk = 'match'
+                        else:
+                            risk = 'reach'
+                except Exception:
+                    risk = None
+
+                results.append({
+                    'id': idx,
+                    'program': new[0],
+                    'university_name': new[1],
+                    'admission_average': avg_val,
+                    'risk': risk,
+                })
 
     except Exception as e:
         print(e)
@@ -79,8 +108,33 @@ def result(request):
     return render(request, 'frontendapp/result.html', context)
 
 def detail(request):
-    id = request.GET.get("id")
-    name = "Software Engineering"#request.GET.get("name")
-    uni = "University of Waterloo"#request.GET.get("uni")
+    #id = request.GET.get("id")
+    name = request.GET.get("name")
+    uni = request.GET.get("uni")
+    msg = "SELECT * FROM program_descriptions WHERE LOWER(university) LIKE %s AND LOWER(program) LIKE %s"
+    description = ""
+    link = ""
     graph = getplot(name, uni)
-    return render(request, "frontendapp/detail.html", {'graph': graph})
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(msg, [f"%{uni.lower()}%", f"%{name.lower()}%"])
+            #cursor.execute(msg, uni.lower(), name.lower())
+            rows = cursor.fetchall()
+            if not rows:
+                print(f"no data found")
+                raise Exception
+            description += rows[0][2]
+            link += rows[0][3]
+
+
+    except Exception as e:
+        print(f"database error: {e}")
+        #return 1
+    
+    return render(request, "frontendapp/detail.html", {
+        'graph': graph,
+        'university': uni, 
+        'name': name, 
+        'description': description, 
+        'link': link
+    })

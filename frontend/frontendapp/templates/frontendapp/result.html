@@ -69,6 +69,25 @@
             position: relative;
 
         }
+        .result-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 2px rgba(15,23,42,0.05);
+            padding: 12px 16px;
+            margin: 10px 0;
+            width: 480px;
+            border-radius: 6px;
+        }
+        .result-left { text-align: left; color: #334155; }
+        .result-right { text-align: left; margin-left: 12px; }
+        .program-link { color: #0b5fff; text-decoration: none; font-size: 16px; }
+        .program-link:hover { text-decoration: underline; }
+        .university { color: #475569; font-size: 14px; }
+        .avg { color: #0f172a; font-size: 14px; }
+        .risk { color: #334155; font-size: 13px; }
         table.Logo {
             width: 200px;
         }
@@ -121,29 +140,20 @@
             </div>
             <div class="table64">
                 {% for row in page_obj %}
-                <table class="behind">
-                    <tr><th></th><th></th></tr>
-                    <tr style="line-height: 4"><td></td><td>&nbsp;</td></tr>
-                    <tr><td></td><td>&nbsp;</td></tr>
-                    <tr>
-                        <td style="text-align:right;">Average GPA: {{ row.admission_average }}%</td>
-                        <td style="text-align:center;">Risk: Match</td>
-                    </tr>
-                    <tr><th></th><th></th></tr>
-                </table>
-                <table class="front">
-                    <tr><th></th></tr>
-                    <tr>
-                        <td style="line-height: 4">
-                            <a href="/detail/?id={{ row.id }}" target="_blank">
-                                <b>{{ row.program }}</b>
-                            </a>
-                        </td>
-                    </tr>
-                    <tr><td>{{ row.university_name }}</td></tr>
-                    <tr><td>&nbsp;</td></tr>
-                    <tr><td>&nbsp;</td></tr>
-                </table>
+                <div class="result-card">
+                    <div class="result-left">
+                        {% if row.admission_average %}
+                            <div class="avg">Average GPA: <strong>{{ row.admission_average }}%</strong></div>
+                        {% endif %}
+                            {% if row.risk %}
+                                <div class="risk">Risk: <em>{{ row.risk|capfirst }}</em></div>
+                            {% endif %}
+                    </div>
+                    <div class="result-right">
+                        <a href="/detail/?id={{ row.id }}&name={{ row.program }}&uni={{ row.university_name }}" target="_blank" class="program-link"><b>{{ row.program }}</b></a>
+                        <div class="university">{{ row.university_name }}</div>
+                    </div>
+                </div>
                 {% empty %}
                 <p style="text-align: center; padding: 40px; font-size: 35px;">No results found. Try changing your filters</p>
                 {% endfor %}
