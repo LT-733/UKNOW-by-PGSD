@@ -1,7 +1,7 @@
-django 
-djangorestframework 
-python-dotenv 
-matplotlib 
-requests 
+django
+djangorestframework
+python-dotenv
+matplotlib
+requests
 playwright
-pymysql 
+mysqlclient>=2.2.1
