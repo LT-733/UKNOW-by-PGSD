@@ -14,6 +14,11 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 
+# Install pymysql as MySQLdb
+import pymysql
+pymysql.install_as_MySQLdb()
+
+
 # Load local .env (next to this settings.py) so DB creds are available
 load_dotenv(str(Path(__file__).resolve().parent / '.env'))
 
@@ -27,7 +32,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-ahn-8qqiz!^0q))c_^r%a%&6xxnvjb^9hw%-a4(ee^51^)o52g'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('VERCEL') is None
 
 ALLOWED_HOSTS = ['.vercel.app']
 
