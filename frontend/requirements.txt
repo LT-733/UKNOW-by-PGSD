@@ -3,5 +3,5 @@ djangorestframework
 python-dotenv 
 matplotlib 
 requests 
-requests
+playwright
 pymysql 
