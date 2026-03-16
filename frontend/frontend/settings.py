@@ -80,10 +80,6 @@ WSGI_APPLICATION = 'frontend.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 # kevin added connector
 
-required = ["NAME", "DB_USER", "PASSWORD", "DB_HOST"]
-missing = [v for v in required if not os.getenv(v)]
-if missing:
-    raise RuntimeError(f"Missing required DB env vars: {missing}")
 
 DATABASES = {
     'default': {
