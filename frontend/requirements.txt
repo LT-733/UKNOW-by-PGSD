@@ -4,5 +4,4 @@ python-dotenv
 matplotlib
 requests
 playwright
-PyMySQL
-mysqlclient==2.2.1
+mysql-connector-python

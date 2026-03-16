@@ -14,10 +14,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 
-# Install pymysql as MySQLdb
-import pymysql
-pymysql.install_as_MySQLdb()
-
 
 # Load local .env (next to this settings.py) so DB creds are available
 load_dotenv(str(Path(__file__).resolve().parent / '.env'))
@@ -83,10 +79,14 @@ WSGI_APPLICATION = 'frontend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+required = ["NAME", "DB_USER", "PASSWORD", "DB_HOST"]
+missing = [v for v in required if not os.getenv(v)]
+if missing:
+    raise RuntimeError(f"Missing required DB env vars: {missing}")
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'mysql.connector.django',
         'NAME': os.getenv('NAME'),
         'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('PASSWORD'),
