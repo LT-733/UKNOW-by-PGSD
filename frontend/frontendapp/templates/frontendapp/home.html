@@ -1,25 +1,143 @@
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>UKNOW</title>
-        <style>
-        body {
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UKNOW</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bitcount+Prop+Double:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+
+        html {
+            overflow: hidden;
+        }
+
+        html, body {
             margin: 0;
-            font-family: Arial;
+            font-family: Tahoma;
             line-height: 1.5;
-            background: #f8fafc;
+            height: 100%;
             color: #0f172a;
         }
 
+        body {
+            overflow: hidden;
+            background-color: #f6f7fb;
+            background-image:
+                linear-gradient(rgba(15, 23, 42, 0.18) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(15, 23, 42, 0.18) 1px, transparent 1px);
+            background-size: 100px 100px;
+        }
+        .page {
+            font-family: Beastly clauworks;
+            position: relative;
+            height: 100vh;
+            width: 100%;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            padding: 2.5vh 4vw;
+        }
+
+        .heading {  
+            text-align: center; 
+            margin-bottom: 20px;
+        }
+        .heading h1 {
+            font-family: "Bitcount Prop Double";
+            font-size: 20vh;
+            font-weight: 300;
+            color: #8c1515;
+            line-height: 0.7;
+            margin: 0;
+        }
+        .heading h3 {
+            font-family: "Inter";
+            font-size: 3.4vh;
+            line-height: 1.15;
+            margin: 0;
+        }
+
         header {
-            background: #102b66;
-            color: #ffffff;
-            padding: 4px;
-            text-align: center;
-            font-size: 20px;
-            line-height: 0.15;
+            position: absolute;
+            top: 2vh;
+            left: 2vw;
+            right: 2vw;
+            z-index: 11;
+        }
+
+        .headerRow {
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+        }
+
+        .logoLink {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            background: transparent;
+            border: 0;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .siteLogo {
+            height: 5vh;
+            width: auto;
+            display: block;
+        }
+
+        .topActions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pillLink {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.85);
+            color: #0f172a;
+            text-decoration: none;
+            font-weight: 500;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.08s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+            visibility: hidden; /* Ghost pill to preserve layout */
+            pointer-events: none;
+        }
+
+        main {
+            width: 100%;
+            max-width: 760px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+            box-sizing: border-box;
+            margin-top: -30vh;
+        }
+
+        .divider {
+            width: min(520px, 70%);
+            margin: 0;
+            border: none;
+            border-top: 1px solid rgba(15, 23, 42, 0.18);
         }
 
         footer {
@@ -29,109 +147,335 @@
             color: #64748b;
         }
 
-        .subCon {
-            margin: 0px auto 0px 500px;
-            width: 1000px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .subTitle {
-            text-align: left;
-            font-size: 25px;
-            padding-top: 50px;
-        }
-
         .textbox {
             display: block;
             width: 100%;
             max-width: 640px;
-            margin: 24px auto;
-            padding: 8px 12px;
-            font-size: 20px;
+            margin: 0 auto;
+            padding: 8px 11px;
+            font-size: 2.2vh;
+            box-sizing: border-box;
         }
         .filterzz {
             max-width: 640px;
-            margin: 16px auto;
+            width: 100%;
+            margin: 14px auto 20px auto;
             display: flex;
-            gap: 40px;
-            justify-content:center; 
-            transform: scale(1.25);
+            gap: 18px;
+            justify-content: center;
+            align-items: center;
         }
+
+        .filterzz label {
+            font-size: 3vh;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #374151;
+        }
+
+        .number-input,
+        .dropdown {
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid #d4d8e2;
+            background: white;
+            font-size: 1.8vh;
+            outline: none;
+            transition: border 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .number-input {
+            width: 80px;
+        }
+
+        .dropdown {
+            min-width: 160px;
+        }
+        /*
+        .number-input:focus,
+        .dropdown:focus {
+            border-color: #8c1515;
+            box-shadow: 0 0 0 3px rgba(140, 21, 21, 0.15);
+        }
+        */
+        .searchRow {
+            display: flex;
+            width: 100%;
+            max-width: 640px;
+            margin: 18px auto;
+            gap: 10px;
+        }
+
+        .textbox {
+            flex: 1;
+            padding: 12px 14px;
+            font-size: 2.2vh;
+            border-radius: 10px;
+            border: 1px solid #d4d8e2;
+            background: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            outline: none;
+            transition: border 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        /*
+        .textbox:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+        }
+        */
+
         .searchB {
-            background:#3f4145;
-            color: white;
-            padding: 7px 14px;
-            font-size: 12px;
+            padding: 0 18px;
+            border-radius: 50px;
             border: none;
-            border-radius: 5px;
+            background: #8c1515;
+            color: white;
+            font-size: 2vh;
+            letter-spacing: 0.08em;
             cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
         }
+
         .searchB:hover {
-            background:#4c4e53;
+            background: #c42f2f;
         }
+
         .searchB:active {
-            transform: scale(0.95);
+            transform: translateY(1px);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
         }
         .homepageButton {
             background: none;
             border: none;
-            color: white;
+            color: rgb(0, 0, 0);
             font-size: 20px;
             cursor: pointer;
+            font-family: Tahoma;
         }
         .homepageButton h1 {
             margin: 0;
         }
 
-        </style>
-    </head>
-    <body>
-        <header>
-        <button class="homepageButton" onclick="window.location.href='/'"><h1>UKNOW</h1></button> 
-        </header>
-        <main>
-        <div class="subCon">
-            <div class="subTitle">
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="headerRow">
+            <a class="logoLink" href="/">
+                <img class="siteLogo" src="../../static/frontendapp/logo.png" alt="UKNOW logo">
+            </a>
+            <div class="topActions">
+                <a class="pillLink" href="/">New search</a>
             </div>
         </div>
+    </header>
 
-        <form method="get" action="/result">
-
-            <input name="name" type="text" class="textbox" placeholder="Type the program name in here!">
-            <div class="filterzz">
-                <label>
-                GPA:
-                <input name="gpa" type="number" class="number-input" name="gpa" min="0" max="100" step="0.5" placeholder="67">
-                </label>
-                <label>
-                &nbsp; &nbsp; University:
-                <select name="uni" class="dropdown">
-                    <option value="">select</option>
-                    {% for u in universities %}
-                        <option value="{{ u }}">{{ u }}</option>
-                    {% endfor %}
-                </select>
-                &nbsp; &nbsp; &nbsp; 
-                </label>
-                <label>
-                <button class="searchB">SEARCH</button>
-                </label>
+    <div class="page">
+        <main>
+            <div class="heading">
+                <h1>UKNOW</h1>
+                <h3>Can you get into your dream university?</h3>
             </div>
+           
 
-        </form>
-        
-        
-        <!--
-        <section class="features">
-            {% for feature in features %}
-            <div class="feature-card">
-            <h2>Feature</h2>
-            <p>{{ feature }}</p>
-            </div>
-            {% endfor %}
-        </section>
-        -->
+            <form method="get" action="/result" style="width: 100%; max-width: 640px;">
+                <div class="searchRow">
+                    <input name="name" type="text" class="textbox" placeholder="Type the program name in here">
+                    <button class="searchB">Search</button>
+                </div>
+                <div class="filterzz">
+                    <label>
+                        <span>GPA:</span>
+                        <input name="gpa" type="number" class="number-input" style="font-family: Tahoma" name="gpa" min="0" max="100" step="0.5" placeholder="67">
+                    </label>
+
+                    <label>
+                        <span>University:</span>
+                        <select name="uni" class="dropdown">
+                            <option value="">select</option>
+                            {% for u in universities %}
+                                <option value="{{ u }}">{{ u }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                </div>
+                
+            </form>
+
+            <!--
+            <section class="features">
+                {% for feature in features %}
+                <div class="feature-card">
+                <h2>Feature</h2>
+                <p>{{ feature }}</p>
+                </div>
+                {% endfor %}
+            </section>
+            -->
         </main>
-    </body>
-    </html>
+    </div>
+
+    <script type="importmap">
+        {
+          "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "cannon-es": "https://unpkg.com/cannon-es@0.20.0/dist/cannon-es.js"
+          }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import * as CANNON from 'cannon-es';
+
+        // --- 1. ENGINE SETUP ---
+        const scene = new THREE.Scene();
+        const world = new CANNON.World({ gravity: new CANNON.Vec3(0, -35, 0) });
+        
+        const aspect = window.innerWidth / window.innerHeight;
+        const frustumSize = 20;
+        const camera = new THREE.OrthographicCamera(frustumSize * aspect / -2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / -2, 0.1, 1000);
+        camera.position.set(0, 0, 20);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+        renderer.domElement.style.position = "fixed";
+        renderer.domElement.style.inset = "0";
+        renderer.domElement.style.width = "100vw";
+        renderer.domElement.style.height = "100vh";
+        renderer.domElement.style.display = "block";
+        renderer.domElement.style.zIndex = "0";
+        // --- 2. TEXTURES ---
+        // Replace these URLs with your actual plus/smiley PNGs
+        const loader = new THREE.TextureLoader();
+        const textures = [
+            // null, // Solid color ball
+            // loader.load('https://threejs.org/examples/textures/uv_grid_opengl.jpg'), // Placeholder for Plus/Smiley
+            loader.load('../../static/frontendapp/ubc-logo.svg'), 
+            loader.load('../../static/frontendapp/uoft-logo.svg'), 
+            loader.load('../../static/frontendapp/mcgill-logo.svg'), 
+            loader.load('../../static/frontendapp/uwaterloo-logo.svg'), 
+            loader.load('../../static/frontendapp/uofa-logo.svg'), 
+            loader.load('../../static/frontendapp/uwestern-logo.svg'), 
+            loader.load('../../static/frontendapp/mcmaster-logo.svg'), 
+        ];
+
+        // --- 3. PHYSICS BOUNDARIES ---
+        const addWall = (x, y, nx, ny) => {
+            const shape = new CANNON.Plane();
+            const body = new CANNON.Body({ mass: 0, shape });
+            body.position.set(x, y, 0);
+            body.quaternion.setFromEuler(nx, ny, 0);
+            world.addBody(body);
+        };
+        addWall(0, -10, -Math.PI/2, 0); // Floor
+        addWall(-10 * aspect, 0, 0, Math.PI/2); // Left
+        addWall(10 * aspect, 0, 0, -Math.PI/2); // Right
+
+        // --- 4. THE BALLS ---
+        const spheres = [];
+        const sphereGeo = new THREE.SphereGeometry(1.6, 64, 64);
+        // const palette = [0x0038ff, 0x6e96ff, 0xffffff]; // Blue, Light Blue, White
+        const palette = [0xffffff];
+        function spawnBall() {
+            const color = palette[Math.floor(Math.random() * palette.length)];
+            const material = new THREE.MeshPhongMaterial({
+                color: color,
+                shininess: 100,
+                specular: 0x444444,
+                map: textures[Math.floor(Math.random() * textures.length)] // Randomly assign texture
+            });
+
+            const mesh = new THREE.Mesh(sphereGeo, material);
+            scene.add(mesh);
+
+            const body = new CANNON.Body({
+                mass: 1.2,
+                shape: new CANNON.Sphere(1.6),
+                position: new CANNON.Vec3((Math.random()-0.5)*10, 15, 0),
+                linearDamping: 0.2
+            });
+            
+            body.linearFactor = new CANNON.Vec3(1, 1, 0);
+            // body.angularFactor = new CANNON.Vec3(0, 0, 1); // Lock to 2D spinning (spin only on one axis)
+            body.angularFactor = new CANNON.Vec3(1, 1, 1); // Allow full 3D rotations
+            
+            world.addBody(body);
+            spheres.push({ mesh, body });
+        }
+
+        for(let i = 0; i < 20; i++) setTimeout(spawnBall, i * 120);
+
+        // --- 5. LIGHTING (Mimicking the image highlights) ---
+        scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+        const topLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        topLight.position.set(0, 10, 10);
+        scene.add(topLight);
+
+
+        // --- INTERACTION: CLICK TO PROPEL ---
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        window.addEventListener('mousedown', (event) => {
+        // 1. Normalize mouse coordinates
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(spheres.map(s => s.mesh));
+
+        if (intersects.length > 0) {
+            const clickedMesh = intersects[0].object;
+            const sphereObj = spheres.find(s => s.mesh === clickedMesh);
+
+            if (sphereObj) {
+                // --- THE UPWARD POP ---
+                // A strong vertical force with a tiny bit of horizontal randomness
+                const forceX = (Math.random() - 0.5) * 10;
+                const forceY = 45; 
+                const impulse = new CANNON.Vec3(forceX, forceY, 0);
+                
+                // Apply impulse to the center
+                sphereObj.body.applyImpulse(impulse, new CANNON.Vec3(0, 0, 0));
+
+                // --- THE SPIN (Torque) ---
+                // We apply an angular impulse on the Z axis (0, 0, Z)
+                // A value between -10 and 10 makes it spin fast but not crazily
+                const spinPower = (Math.random() - 0.5) * 20;
+                sphereObj.body.angularVelocity.x += 2;
+                sphereObj.body.angularVelocity.y += 7;
+                sphereObj.body.angularVelocity.z += spinPower;
+            }
+        }
+    });
+
+
+        // --- 6. ANIMATION ---
+        function animate() {
+            requestAnimationFrame(animate);
+            world.fixedStep();
+            spheres.forEach(s => {
+                s.mesh.position.copy(s.body.position);
+                s.mesh.quaternion.copy(s.body.quaternion);
+            });
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            const aspect = window.innerWidth / window.innerHeight;
+            camera.left = frustumSize * aspect / -2;
+            camera.right = frustumSize * aspect / 2;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>

@@ -1,81 +1,189 @@
 <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        
-        <title>UKNOW - detail</title>
-        <style>
-        body {
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <title>UKNOW - detail</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bitcount+Prop+Double:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        html {
+            overflow-y: auto;
+        }
+
+        html, body {
             margin: 0;
-            font-family: Arial;
+            font-family: Tahoma;
             line-height: 1.5;
-            background: #f8fafc;
+            height: 100%;
             color: #0f172a;
         }
 
-        header {
-            background: #102b66;
-            color: #ffffff;
-            padding: 4px;
-            text-align: center;
-            font-size: 20px;
-            line-height: 0.15;
+        body {
+            overflow-x: hidden;
+            overflow-y: auto;
+            background-color: #f6f7fb;
+            background-image:
+                linear-gradient(rgba(15, 23, 42, 0.18) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(15, 23, 42, 0.18) 1px, transparent 1px);
+            background-size: 100px 100px;
         }
 
-        footer {
-            text-align: center;
-            padding: 24px;
-            font-size: 0.9rem;
-            color: #64748b;
+        header {
+            position: absolute;
+            top: 2vh;
+            left: 2vw;
+            right: 2vw;
+            z-index: 11;
         }
-        .homepageButton {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
+
+        .headerRow {
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+        }
+
+        .logoLink {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            background: transparent;
+            border: 0;
+            padding: 0;
             cursor: pointer;
         }
-        .homepageButton h1 {
-            margin: 0;
+
+        .siteLogo {
+            height: 5vh;
+            width: auto;
+            display: block;
         }
-        .headBack {
-            color: black;
-            text-decoration: none; 
-            cursor: pointer;       
+
+        .topActions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        .headBack:hover {
-            color: rgb(98, 98, 98);
+
+        .pillLink {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.85);
+            color: #0f172a;
+            text-decoration: none;
+            font-weight: 500;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid #d4d8e2;
         }
+        .pillLink:hover {
+            transform: translateY(-1px);
+            border-color: rgba(140, 21, 21, 0.3);
+            box-shadow: 0 8px 22px rgba(2, 6, 23, 0.08);
+        }
+
         .tables {
-            display: flex;  
+            display: flex;
             align-items: flex-start;
             justify-content: center;
-            width: 1000px;
+            gap: 24px;
+            padding: 12vh 4vw 44px;
+            max-width: 1100px;
             margin: 0 auto;
+            box-sizing: border-box;
         }
-        table.Logo {
-            width: 200px;
-        }
-        table.info {
-            width: 800px;
-        }
+
         table {
             border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.9);
+        
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
         }
-        td {
-            text-align: left;
-            padding: 8px;
+
+        table.Logo {
+            text-align: center;
+            width: 200px;
         }
-        </style>
+
+        
+
+        table.info {
+            flex: 1;
+        }
+
+        table.info td {
+            padding: 16px 24px;
+            color: #0f172a;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+        }
+
+        table.info tr:last-child td {
+            border-bottom: none;
+        }
+
+        table.info strong {
+            font-size: 1.4rem;
+            color: #8c1515;
+        }
+
+        table.info img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 12px;
+            margin: 10px 0;
+            background: white;
+            border: 1px solid #d4d8e2;
+        }
+
+        table.info a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 18px;
+            border-radius: 999px;
+            background: white;
+            color: #0f172a;
+            text-decoration: none;
+            font-weight: 500;
+            border: 1px solid #d4d8e2;
+        }
+
+        table.info a:hover {
+            transform: translateY(-1px);
+            border-color: rgba(140, 21, 21, 0.3);
+            box-shadow: var(--shadow);
+        }
+
+        
+    </style>
     </head>
-    <body>
+      <body>
         <header>
-        <button class="homepageButton" onclick="window.location.href='/'"><h1>UKNOW</h1></button> 
+            <div class="headerRow">
+                <a class="logoLink" href="/" aria-label="UKNOW home">
+                    <img class="siteLogo" src="../../static/frontendapp/logo.png" alt="UKNOW logo">
+                </a>
+
+                <div class="topActions">
+                    <a class="pillLink" href="/">New search</a>
+                </div>
+            </div>
         </header>
-        <label>
-            &nbsp;
-        </label>
+      
         <div class="tables">
             <table class="Logo">
                 <tr><th></th></tr>
@@ -87,10 +195,7 @@
             </table>
             <table class="info">
                 {% if university %}
-                    <tr><td><strong>{{ university }}</strong></td></tr>
-                {% endif %}
-                {% if name %}
-                    <tr><td>{{ name }}</td></tr>
+                    <tr><td><strong>{{ name }} at {{ university }}</strong></td></tr>
                 {% endif %}
                 {% if description %}
                     <tr><td>{{ description }}</td></tr>

@@ -14,9 +14,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 
-
 # Load local .env (next to this settings.py) so DB creds are available
-load_dotenv(str(Path(__file__).resolve().parent / '.env'))
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -84,7 +83,7 @@ WSGI_APPLICATION = 'frontend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'mysql.connector.django',
-        'NAME': os.getenv('NAME'),
+        'NAME': os.getenv('DB_NAME'),
         'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('PASSWORD'),
         'HOST': os.getenv('DB_HOST', 'riku.shoshin.uwaterloo.ca'),
