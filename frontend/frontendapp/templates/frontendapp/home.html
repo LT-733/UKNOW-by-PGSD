@@ -266,6 +266,7 @@
     <header>
         <div class="headerRow">
             <a class="logoLink" href="/">
+                {% load static %}
                 <img class="siteLogo" src="../../static/frontendapp/logo.png" alt="UKNOW logo">
             </a>
             <div class="topActions">
@@ -352,20 +353,16 @@
         renderer.domElement.style.display = "block";
         renderer.domElement.style.zIndex = "0";
         // --- 2. TEXTURES ---
-        // Replace these URLs with your actual plus/smiley PNGs
         const loader = new THREE.TextureLoader();
         const textures = [
-            // null, // Solid color ball
-            // loader.load('https://threejs.org/examples/textures/uv_grid_opengl.jpg'), // Placeholder for Plus/Smiley
-            loader.load('../../static/frontendapp/ubc-logo.svg'), 
-            loader.load('../../static/frontendapp/uoft-logo.svg'), 
-            loader.load('../../static/frontendapp/mcgill-logo.svg'), 
-            loader.load('../../static/frontendapp/uwaterloo-logo.svg'), 
-            loader.load('../../static/frontendapp/uofa-logo.svg'), 
-            loader.load('../../static/frontendapp/uwestern-logo.svg'), 
-            loader.load('../../static/frontendapp/mcmaster-logo.svg'), 
+            loader.load("{% static 'frontendapp/ubc-logo.svg' %}"),
+            loader.load("{% static 'frontendapp/uoft-logo.svg' %}"),
+            loader.load("{% static 'frontendapp/mcgill-logo.svg' %}"),
+            loader.load("{% static 'frontendapp/uwaterloo-logo.svg' %}"),
+            loader.load("{% static 'frontendapp/uofa-logo.svg' %}"),
+            loader.load("{% static 'frontendapp/uwestern-logo.svg' %}"),
+            loader.load("{% static 'frontendapp/mcmaster-logo.svg' %}"),
         ];
-
         // --- 3. PHYSICS BOUNDARIES ---
         const addWall = (x, y, nx, ny) => {
             const shape = new CANNON.Plane();
