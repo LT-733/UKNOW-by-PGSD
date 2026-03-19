@@ -80,7 +80,6 @@ WSGI_APPLICATION = 'frontend.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 # kevin added connector
 # and kevin fixed frontend
-# w kevin
 
 
 DATABASES = {
