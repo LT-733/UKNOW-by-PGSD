@@ -1,1 +1,4 @@
 /Users/leon/Developer/UKNOW/frontend/frontend/.env
+
+venv/
+__pycache__/
