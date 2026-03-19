@@ -27,9 +27,10 @@ def home(request):
 def result(request):
     name = request.GET.get("name")
     uni = request.GET.get("uni")
+    gpa = request.GET.get("gpa")
     # parse user's average (supports ?avg= or ?average= or ?score=)
     user_avg = None
-    avg_param = request.GET.get('avg') or request.GET.get('average') or request.GET.get('score')
+    avg_param = gpa or request.GET.get('avg') or request.GET.get('average') or request.GET.get('score')
     if avg_param:
         try:
             user_avg = float(avg_param)
@@ -74,12 +75,13 @@ def result(request):
                 risk = None
                 try:
                     if user_avg is not None and avg_val is not None:
-                        if (user_avg - avg_val) >= 2:
-                            risk = 'backup'
-                        elif abs(user_avg - avg_val) <= 2:
+                        diff = user_avg - avg_val
+                        if abs(diff) <= 3:
                             risk = 'match'
+                        elif diff > 3:
+                            risk = 'safe'
                         else:
-                            risk = 'reach'
+                            risk = 'risky'
                 except Exception:
                     risk = None
 
@@ -103,6 +105,7 @@ def result(request):
         'page_obj': page_obj,
         'program': name,
         'university': uni,
+        'gpa': avg_param,
     }
 
     return render(request, 'frontendapp/result.html', context)

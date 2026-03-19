@@ -11,6 +11,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --muted: #64748b;
+            --danger: #b91c1c;
+        }
     
         html {
             overflow-y: auto;
@@ -106,6 +110,24 @@
             font-size: 25px;
             padding-top: 25px;
             margin-bottom: 20px;
+        }
+
+        .status-message {
+            max-width: 760px;
+            margin: 0 auto 18px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #fecaca;
+            background: #fef2f2;
+            color: var(--danger);
+            font-weight: 500;
+        }
+
+        .result-summary {
+            text-align: center;
+            margin-bottom: 16px;
+            color: #0f172a;
         }
 
         .tables {
@@ -227,6 +249,14 @@
             </label>
         </div>
 
+        {% if error %}
+            <div class="status-message">{{ error }}</div>
+        {% elif program %}
+            <div class="result-summary">
+                Showing results for <strong>{{ program }}</strong>{% if university %} at <strong>{{ university }}</strong>{% endif %}
+            </div>
+        {% endif %}
+
         <div class="tables">
             <div>
                 {% if plot_svg %}
@@ -243,7 +273,9 @@
                                 <div class="avg">Average GPA: <strong>{{ row.admission_average }}%</strong></div>
                             {% endif %}
                             {% if row.risk %}
-                                <div class="risk">Risk: <em>{{ row.risk|capfirst }}</em></div>
+                                <div class="risk">Risk rating: <em>{{ row.risk|capfirst }}</em></div>
+                            {% else %}
+                                <div class="risk">Risk rating: <em>Unavailable</em></div>
                             {% endif %}
                         </div>
                         <div class="result-right">
@@ -260,8 +292,8 @@
         {% if page_obj.has_other_pages %}
         <div class="pagination">
             {% if page_obj.has_previous %}
-                <a href="?name={{ program }}{% if university %}&uni={{ university }}{% endif %}&page=1">First</a> |
-                <a href="?name={{ program }}{% if university %}&uni={{ university }}{% endif %}&page={{ page_obj.previous_page_number }}">Previous</a>
+                <a href="?name={{ program }}{% if university %}&uni={{ university }}{% endif %}{% if gpa %}&gpa={{ gpa }}{% endif %}&page=1">First</a> |
+                <a href="?name={{ program }}{% if university %}&uni={{ university }}{% endif %}{% if gpa %}&gpa={{ gpa }}{% endif %}&page={{ page_obj.previous_page_number }}">Previous</a>
             {% else %}
                 <span class="disabled">First</span> |
                 <span class="disabled">Previous</span>
@@ -270,8 +302,8 @@
             | Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }} |
 
             {% if page_obj.has_next %}
-                <a href="?name={{ program }}{% if university %}&uni={{ university }}{% endif %}&page={{ page_obj.next_page_number }}">Next</a> |
-                <a href="?name={{ program }}{% if university %}&uni={{ university }}{% endif %}&page={{ page_obj.paginator.num_pages }}">Last</a>
+                <a href="?name={{ program }}{% if university %}&uni={{ university }}{% endif %}{% if gpa %}&gpa={{ gpa }}{% endif %}&page={{ page_obj.next_page_number }}">Next</a> |
+                <a href="?name={{ program }}{% if university %}&uni={{ university }}{% endif %}{% if gpa %}&gpa={{ gpa }}{% endif %}&page={{ page_obj.paginator.num_pages }}">Last</a>
             {% else %}
                 <span class="disabled">Next</span> |
                 <span class="disabled">Last</span>
