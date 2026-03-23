@@ -126,7 +126,7 @@ def detail(request):
             if not rows:
                 print(f"no data found")
                 raise Exception
-            description += rows[0][2]
+            description += rows[0][2].encode("latin1").decode("utf-8")
             link += rows[0][3]
 
 
