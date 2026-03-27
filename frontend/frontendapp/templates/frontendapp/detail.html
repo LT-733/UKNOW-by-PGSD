@@ -72,6 +72,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            margin-right: -1.2vw;
         }
 
         .pillLink {
@@ -91,6 +92,13 @@
             transform: translateY(-1px);
             border-color: rgba(140, 21, 21, 0.3);
             box-shadow: 0 8px 22px rgba(2, 6, 23, 0.08);
+        }
+
+        .submitCorner {
+            position: fixed;
+            right: 0.8vw;
+            bottom: 2vh;
+            z-index: 12;
         }
 
         .tables {
@@ -180,10 +188,12 @@
                 </a>
 
                 <div class="topActions">
-                    <a class="pillLink" href="/">New search</a>
+                    <a class="pillLink" href="#" role="button" aria-disabled="true">Log in</a>
                 </div>
             </div>
         </header>
+
+        <a class="pillLink submitCorner" href="/submit/">Submit a record</a>
       
         <div class="tables">
             <table class="Logo">

@@ -76,6 +76,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            margin-right: -1.2vw;
         }
 
         .pillLink {
@@ -96,6 +97,20 @@
             transform: translateY(-1px);
             border-color: rgba(140, 21, 21, 0.35);
             box-shadow: 0 8px 22px rgba(2, 6, 23, 0.08);
+        }
+
+        .bottomAction {
+            position: fixed;
+            bottom: 2vh;
+            z-index: 12;
+        }
+
+        .bottomLeft {
+            left: 0.8vw;
+        }
+
+        .bottomRight {
+            right: 0.8vw;
         }
 
         main {
@@ -237,10 +252,13 @@
             </a>
 
             <div class="topActions">
-                <a class="pillLink" href="/">New search</a>
+                <a class="pillLink" href="#" role="button" aria-disabled="true">Log in</a>
             </div>
         </div>
     </header>
+
+    <a class="pillLink bottomAction bottomLeft" href="/">New search</a>
+    <a class="pillLink bottomAction bottomRight" href="/submit/">Submit a record</a>
 
     <main>
         <div class="resultText">

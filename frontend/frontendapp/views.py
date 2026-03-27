@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.db import connection
 from django.core.paginator import Paginator
+from datetime import datetime
 import requests
 from .utils import getplot
 
@@ -141,3 +142,50 @@ def detail(request):
         'description': description, 
         'link': link
     })
+
+def submit(request):
+    auto_username = "anonymous"
+    if getattr(request, "user", None) and request.user.is_authenticated:
+        auto_username = request.user.get_username() or "anonymous"
+    auto_year = str(datetime.now().year)
+
+    form_data = {
+        "username": auto_username,
+        "year": auto_year,
+        "name": "",
+        "gpa": "",
+        "uni": "",
+    }
+    errors = {}
+    success = False
+
+    if request.method == "POST":
+        form_data["username"] = auto_username
+        form_data["year"] = auto_year
+        form_data["name"] = request.POST.get("name", "").strip()
+        form_data["gpa"] = request.POST.get("gpa", "").strip()
+        form_data["uni"] = request.POST.get("uni", "").strip()
+
+        for key in ["name", "gpa", "uni"]:
+            if not form_data[key]:
+                errors[key] = "This field is required."
+
+        if "gpa" not in errors:
+            try:
+                gpa_value = float(form_data["gpa"])
+                if gpa_value < 0 or gpa_value > 100:
+                    errors["gpa"] = "GPA must be between 0 and 100."
+            except ValueError:
+                errors["gpa"] = "GPA must be a number."
+
+        success = not errors
+
+    return render(
+        request,
+        "frontendapp/submit.html",
+        {
+            "form_data": form_data,
+            "errors": errors,
+            "success": success,
+        },
+    )
