@@ -25,5 +25,6 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('result/', views.result, name='result'),
     path('detail/', views.detail, name='detail'),
-    path('api/', include('api.urls'))
+    path('api/', include('api.urls')),
+    path('o/', include(oauth2_urls))
 ]
