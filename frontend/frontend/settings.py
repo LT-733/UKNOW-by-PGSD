@@ -146,4 +146,9 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 OAUTH2_PROVIDER = {
     "OIDC_ENABLED": True,
     "OIDC_RSA_PRIVATE_KEY": os.environ.get('OIDC_RSA_PRIVATE_KEY'),
+    "SCOPES": {
+        "openid": "OpenID Connect scope",
+        "profile": "User profile information",
+        "email": "User email address",
+    }
 }
