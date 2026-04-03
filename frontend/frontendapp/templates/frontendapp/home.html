@@ -102,6 +102,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            margin-right: -1.2vw;
         }
 
         .pillLink {
@@ -117,6 +118,19 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             transition: transform 0.08s ease, box-shadow 0.12s ease, border-color 0.12s ease;
             border: 1px solid #d4d8e2;
+        }
+
+        .pillLink:hover {
+            transform: translateY(-1px);
+            border-color: rgba(140, 21, 21, 0.35);
+            box-shadow: 0 8px 22px rgba(2, 6, 23, 0.08);
+        }
+
+        .submitCorner {
+            position: fixed;
+            right: 0.8vw;
+            bottom: 2vh;
+            z-index: 12;
         }
 
         main {
@@ -269,15 +283,12 @@
                 <img class="siteLogo" src="../../static/frontendapp/logo.png" alt="UKNOW logo">
             </a>
             <div class="topActions">
-                <a class="pillLink" href="/">New search</a>
-                {% if user.is_authenticated %}
-                    <a class="pillLink" href="{% url 'profile' %}">{{ user.username }}</a>
-                {% else %}
-                    <a class="pillLink" href="{% url 'login' %}">Login</a>
-                {% endif %}
+                <a class="pillLink" href="#" role="button" aria-disabled="true">Log in</a>
             </div>
         </div>
     </header>
+
+    <a class="pillLink submitCorner" href="/submit/">Submit a record</a>
 
     <div class="page">
         <main>
