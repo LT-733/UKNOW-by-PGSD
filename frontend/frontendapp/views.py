@@ -246,3 +246,7 @@ def submit(request):
             "success": success,
         },
     )
+    
+@login_required(login_url='login')
+def profile(request):
+    return render(request, "frontendapp/profile.html")
