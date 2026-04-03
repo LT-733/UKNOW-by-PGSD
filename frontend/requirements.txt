@@ -6,3 +6,4 @@ requests
 playwright
 mysql-connector-python
 whitenoise
+django-oauth-toolkit

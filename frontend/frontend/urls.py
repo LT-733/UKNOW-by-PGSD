@@ -17,12 +17,22 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from frontendapp import views
+from oauth2_provider import urls as oauth2_urls
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/', include('django.contrib.auth.urls')),
     path('', views.home, name='home'),
     path('submit/', views.submit, name='submit'),
     path('result/', views.result, name='result'),
     path('detail/', views.detail, name='detail'),
-    path('api/', include('api.urls'))
+    path('profile/', views.profile, name='profile'),
+    path('api/', include('api.urls')),
+    path('o/', include(oauth2_urls)),
+    path('auth/callback/', views.oauth_callback, name='oauth_callback'),
+    
+    # Unified login + register page
+    path('login/', views.auth_page, name='login'),
+    path('logout/', auth_views.LogoutView.as_view(next_page='home'), name='logout'),
 ]
