@@ -1,25 +1,34 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.db import connection
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 import requests
 from .utils import getplot
 import os
-from django.contrib.auth import login
-from django.contrib.auth.forms import UserCreationForm
-from django.shortcuts import redirect, render
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.decorators import login_required
 
-def register(request):
+def auth_page(request):
+    login_form = AuthenticationForm(request, data=request.POST or None)
+    register_form = UserCreationForm(request.POST or None)
+    context = {
+        'login_form': login_form,
+        'register_form': register_form,
+    }
+
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
+        action = request.POST.get('action')
+        if action == 'login' and login_form.is_valid():
+            user = login_form.get_user()
             login(request, user)
             return redirect('home')
-    else:
-        form = UserCreationForm()
-    
-    return render(request, 'frontendapp/templates/register.html', {'form': form})
+        elif action == 'register' and register_form.is_valid():
+            user = register_form.save()
+            login(request, user)
+            return redirect('home')
+
+    return render(request, 'frontendapp/login.html', context)
 
 
 def oauth_callback(request):
@@ -190,3 +199,8 @@ def detail(request):
         'description': description, 
         'link': link
     })
+
+
+@login_required(login_url='login')
+def profile(request):
+    return render(request, "frontendapp/profile.html")

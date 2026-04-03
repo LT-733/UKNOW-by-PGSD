@@ -116,8 +116,7 @@
             font-weight: 500;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             transition: transform 0.08s ease, box-shadow 0.12s ease, border-color 0.12s ease;
-            visibility: hidden; /* Ghost pill to preserve layout */
-            pointer-events: none;
+            border: 1px solid #d4d8e2;
         }
 
         main {
@@ -271,6 +270,11 @@
             </a>
             <div class="topActions">
                 <a class="pillLink" href="/">New search</a>
+                {% if user.is_authenticated %}
+                    <a class="pillLink" href="{% url 'profile' %}">{{ user.username }}</a>
+                {% else %}
+                    <a class="pillLink" href="{% url 'login' %}">Login</a>
+                {% endif %}
             </div>
         </div>
     </header>

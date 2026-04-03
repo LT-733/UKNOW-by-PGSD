@@ -1,4 +1,4 @@
 /Users/leon/Developer/UKNOW/frontend/.env
-venv/
+/venv/
 __pycache__/
 /Users/leon/Developer/UKNOW/frontend/oidc.key
