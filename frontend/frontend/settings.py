@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 from dotenv import load_dotenv
 import os
-#from oauth2_provider.oauth2_validators import OAuth2Validator
+
 # Load local .env (next to this settings.py) so DB creds are available
 load_dotenv()
 
@@ -29,7 +29,8 @@ SECRET_KEY = 'django-insecure-ahn-8qqiz!^0q))c_^r%a%&6xxnvjb^9hw%-a4(ee^51^)o52g
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('VERCEL') is None
 
-ALLOWED_HOSTS = ['.vercel.app', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['.vercel.app', '127.0.0.1']
+
 
 # Application definition
 
@@ -41,18 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'frontendapp',
-    'rest_framework',
-    'oauth2_provider'
+    'rest_framework'
 ]
-
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
-}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -142,13 +133,3 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # WhiteNoise configuration
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-OAUTH2_PROVIDER = {
-    "OIDC_ENABLED": True,
-    "OIDC_RSA_PRIVATE_KEY": os.environ.get('OIDC_RSA_PRIVATE_KEY'),
-    "SCOPES": {
-        "openid": "OpenID Connect scope",
-        "profile": "User profile information",
-        "email": "User email address",
-    }
-}
