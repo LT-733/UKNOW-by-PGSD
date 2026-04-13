@@ -1,11 +1,67 @@
-from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.db import connection
 from django.core.paginator import Paginator
 from datetime import datetime
 import requests
 from .utils import getplot
+import os
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.decorators import login_required
 
+def auth_page(request):
+    login_form = AuthenticationForm(request, data=request.POST or None)
+    register_form = UserCreationForm(request.POST or None)
+    context = {
+        'login_form': login_form,
+        'register_form': register_form,
+    }
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'login' and login_form.is_valid():
+            user = login_form.get_user()
+            login(request, user)
+            return redirect('home')
+        elif action == 'register' and register_form.is_valid():
+            user = register_form.save()
+            login(request, user)
+            return redirect('home')
+
+    return render(request, 'frontendapp/login.html', context)
+
+
+def oauth_callback(request):
+    protocol = "https" if not request.get_host().startswith('127.0.0.1') and not request.get_host().startswith('localhost') else "http"
+    base_url = f"{protocol}://{request.get_host()}"
+    
+    token_url = f"{base_url}/o/token/"
+    
+    # 2. Catch the code from the provider
+    code = request.GET.get('code')
+    if not code:
+        return JsonResponse({'error': 'No code provided'}, status=400)
+    
+    client_id = os.environ.get('OAUTH_CLIENT_ID')
+    client_secret = os.environ.get('OAUTH_CLIENT_SECRET')
+
+    payload = {
+        'grant_type': 'authorization_code',
+        'code': code,
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'redirect_uri': f"{base_url}/auth/callback/",
+        'code_verifier': 'uv_waterloo_rocks',
+    }
+    print(f"DEBUG: Secret being sent is: {os.environ.get('OAUTH_CLIENT_SECRET')[:5]}...") # Prints first 5 chars
+
+    try:
+        response = requests.post(token_url, data=payload)
+        return JsonResponse(response.json())
+    except Exception as e:
+        print(str(e))
+        return JsonResponse({'error': str(e)}, status=500)
+    
 
 def home(request):
     universities = []
