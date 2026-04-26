@@ -83,9 +83,45 @@
         .logoutLink:active {
             transform: translateY(1px);
         }
+
+        .headerRow {
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+        }
+
+        .logoLink {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            background: transparent;
+            border: 0;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .siteLogo {
+            height: 5vh;
+            width: auto;
+            display: block;
+        }
+        
     </style>
 </head>
 <body>
+    <header>
+        <div class="headerRow">
+            <a class="logoLink" href="/">
+                {% load static %}
+                <img class="siteLogo" src="../../static/frontendapp/logo.png" alt="UKNOW logo">
+            </a>
+        </div>
+    </header>
+    
     <div class="page">
         <section class="profileCard">
             <h1>Profile</h1>
