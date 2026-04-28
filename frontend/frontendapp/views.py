@@ -238,16 +238,26 @@ def submit(request):
             except ValueError:
                 errors["gpa"] = "GPA must be a number."
         
-        ProgramCheckingSource = Path(settings.BASE_DIR).parent / 'source_files' / 'new_program_descriptions.csv'
-        with open(str(ProgramCheckingSource), mode='r', encoding='latin-1') as line:
-            reader = csv.reader(line)
-            rows = list(reader)
-            unichecklist = [_[0].lower() for _ in rows]
-            if form_data["uni"].lower() not in unichecklist:
-                errors["uni"] = "University name must be valid."
-            programchecklist = [_[1].lower() for _ in rows]
-            if form_data["name"].lower() not in programchecklist:
+        # ProgramCheckingSource = Path(settings.BASE_DIR).parent / 'source_files' / 'new_program_descriptions.csv'
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT university, program FROM program_descriptions')
+            rows = cursor.fetchall()  # returns [("McGill", "Bachelor of Music"), ...]
+    
+            # Build a set of (university, program) tuples for fast lookup
+            valid_pairs = {(row[0].lower(), row[1].lower()) for row in rows}
+    
+            user_pair = (form_data["uni"].lower(), form_data["name"].lower())
+    
+            if user_pair not in valid_pairs:
                 errors["name"] = "Program name must be valid."
+                errors["uni"] = "University name must be valid"
+                print(errors)
+            # if form_data["name"].lower() not in programlist:
+            #     errors["name"] = "Program name must be valid."
+            #     print(errors)
+            # if form_data["uni"].lower() not in universitylist:
+            #     errors["uni"] = "University name must be valid"
+            #     print(errors)
 
     # finally do the database action here
     if not errors:
