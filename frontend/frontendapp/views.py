@@ -8,6 +8,9 @@ import os
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required
+import csv
+from pathlib import Path
+from django.conf import settings
 
 def auth_page(request):
     login_form = AuthenticationForm(request, data=request.POST or None)
@@ -218,7 +221,7 @@ def submit(request):
 
     if request.method == "POST":
         form_data["username"] = auto_username
-        form_data["year"] = auto_year
+        form_data["year"] = auto_year 
         form_data["name"] = request.POST.get("name", "").strip()
         form_data["gpa"] = request.POST.get("gpa", "").strip()
         form_data["uni"] = request.POST.get("uni", "").strip()
@@ -234,9 +237,27 @@ def submit(request):
                     errors["gpa"] = "GPA must be between 0 and 100."
             except ValueError:
                 errors["gpa"] = "GPA must be a number."
+        
+        ProgramCheckingSource = Path(settings.BASE_DIR).parent / 'source_files' / 'new_program_descriptions.csv'
+        with open(str(ProgramCheckingSource), mode='r', encoding='latin-1') as line:
+            reader = csv.reader(line)
+            rows = list(reader)
+            unichecklist = [_[0].lower() for _ in rows]
+            if form_data["uni"].lower() not in unichecklist:
+                errors["uni"] = "University name must be valid."
+            programchecklist = [_[1].lower() for _ in rows]
+            if form_data["name"].lower() not in programchecklist:
+                errors["name"] = "Program name must be valid."
 
-        success = not errors
-
+    # finally do the database action here
+    if not errors:
+        PUSH_MESSAGE = ('INSERT INTO grade_results (acceptance_year, program, university_name, admission_average, acceptance_status, userid) VALUES (%s, %s, %s, %s, %s, %s)')
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(PUSH_MESSAGE, [form_data["year"], form_data["name"], form_data["uni"], form_data["gpa"], "accepted", form_data["username"]])
+        except Exception as e:
+            errors["dberror"] = str(e)
+    success = not errors
     return render(
         request,
         "frontendapp/submit.html",
