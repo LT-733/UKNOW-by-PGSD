@@ -1,46 +1,74 @@
-from rest_framework.response import Response
+from rest_framework import serializers
 from rest_framework.decorators import api_view, permission_classes
-from django.db import connection
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+from frontendapp.utils import (
+    PULL_MAX_ROWS,
+    aggregated_search_with_risk,
+    distinct_university_names,
+    pull_grade_results,
+)
+
+
+class SearchSerializer(serializers.Serializer):
+    """Same search shape as the HTML result page, but via JSON body."""
+
+    program = serializers.CharField(required=True, trim_whitespace=True)
+    university = serializers.CharField(
+        required=False, allow_blank=True, default=""
+    )
+    user_average = serializers.FloatField(required=False, allow_null=True)
 
 
 # under GET, we write a short test
-@api_view(['GET'])
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def test_api(request):
-    return Response({
-        "message": "OAuth works",
-        "user": str(request.user)
-    })
+    return Response(
+        {
+            "message": "OAuth works",
+            "user": str(request.user),
+        }
+    )
 
 
-@api_view(['POST'])
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def universities_list(request):
+    """Distinct university names (same source as the home page)."""
+    return Response(distinct_university_names())
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def search_programs(request):
+    """
+    Aggregated search like /result/: accepted rows averaged by program + university,
+    optional risk labels vs user_average.
+    """
+    ser = SearchSerializer(data=request.data)
+    if not ser.is_valid():
+        return Response(ser.errors, status=400)
+    program = ser.validated_data["program"]
+    university = (ser.validated_data.get("university") or "").strip() or None
+    user_avg = ser.validated_data.get("user_average")
+    results = aggregated_search_with_risk(program, university, user_avg)
+    return Response({"count": len(results), "results": results})
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def pull(request):
-    uniname = request.data.get('university')
-    average = request.data.get('average')
-    program = request.data.get('program')
+    uniname = request.data.get("university")
+    program = request.data.get("program")
 
-    returnout = []
-
-    # Ignore incoming GPA/average filter; build query only from program and/or
-    # university. Program matching is case-insensitive.
-    clauses = []
-    params = []
-    if program:
-        clauses.append('LOWER(program) LIKE %s')
-        params.append(f"%{program.lower()}%")
-    if uniname:
-        clauses.append('university_name = %s')
-        params.append(uniname)
-
-    if not clauses:
-        return Response({"error": "At least one filter is required"}, status=400)
-
-    PULL_MESSAGE = f"SELECT * FROM grade_results WHERE {' AND '.join(clauses)}"
-    with connection.cursor() as cursor:
-        cursor.execute(PULL_MESSAGE, params)
-        rows = cursor.fetchall()
-        columns = [col[0] for col in cursor.description]
-        returnout = [dict(zip(columns, row)) for row in rows]
+    err, returnout = pull_grade_results(
+        program=program,
+        university=uniname,
+        max_rows=PULL_MAX_ROWS,
+    )
+    if err:
+        return Response({"error": err}, status=400)
 
     return Response(returnout)

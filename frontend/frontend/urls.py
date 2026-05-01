@@ -30,6 +30,7 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('api/', include('api.urls')),
     path('o/', include(oauth2_urls)),
+    path('auth/oauth/start/', views.oauth_pkce_start, name='oauth_pkce_start'),
     path('auth/callback/', views.oauth_callback, name='oauth_callback'),
     
     # Unified login + register page

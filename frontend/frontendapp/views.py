@@ -1,16 +1,27 @@
-from django.shortcuts import render, redirect
-from django.db import connection
-from django.core.paginator import Paginator
-from datetime import datetime
-import requests
-from .utils import getplot
+import base64
+import hashlib
 import os
-from django.contrib.auth import login, authenticate
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+import secrets
+from datetime import datetime
+from urllib.parse import urlencode
+
+import requests
+from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-import csv
-from pathlib import Path
-from django.conf import settings
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.core.paginator import Paginator
+from django.db import connection
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+
+from .utils import (
+    aggregated_search_with_risk,
+    collect_submit_errors,
+    distinct_university_names,
+    fetch_valid_uni_program_pairs,
+    getplot,
+    insert_grade_submission,
+)
 
 def auth_page(request):
     login_form = AuthenticationForm(request, data=request.POST or None)
@@ -34,47 +45,110 @@ def auth_page(request):
     return render(request, 'frontendapp/login.html', context)
 
 
+def _public_base_url(request):
+    protocol = (
+        "https"
+        if not request.get_host().startswith("127.0.0.1")
+        and not request.get_host().startswith("localhost")
+        else "http"
+    )
+    return f"{protocol}://{request.get_host()}"
+
+
+def _pkce_pair():
+    """RFC 7636 S256: verifier and challenge (base64url, no padding)."""
+    verifier = secrets.token_urlsafe(32)
+    digest = hashlib.sha256(verifier.encode("ascii")).digest()
+    challenge = base64.urlsafe_b64encode(digest).decode("ascii").rstrip("=")
+    return verifier, challenge
+
+
+def oauth_pkce_start(request):
+    """
+    Store PKCE verifier and state in session, then redirect to django-oauth-toolkit authorize.
+    OAuth flows must begin here so the callback can validate state and supply code_verifier.
+    """
+    client_id = os.environ.get("OAUTH_CLIENT_ID")
+    if not client_id:
+        return JsonResponse({"error": "OAuth client is not configured."}, status=500)
+
+    base_url = _public_base_url(request)
+    redirect_uri = f"{base_url}/auth/callback/"
+    verifier, challenge = _pkce_pair()
+    state = secrets.token_urlsafe(32)
+    request.session["oauth_pkce_verifier"] = verifier
+    request.session["oauth_state"] = state
+
+    params = {
+        "response_type": "code",
+        "client_id": client_id,
+        "redirect_uri": redirect_uri,
+        "scope": "openid profile email",
+        "state": state,
+        "code_challenge": challenge,
+        "code_challenge_method": "S256",
+    }
+    return redirect(f"{base_url}/o/authorize/?{urlencode(params)}")
+
+
 def oauth_callback(request):
-    protocol = "https" if not request.get_host().startswith('127.0.0.1') and not request.get_host().startswith('localhost') else "http"
-    base_url = f"{protocol}://{request.get_host()}"
-    
+    base_url = _public_base_url(request)
     token_url = f"{base_url}/o/token/"
-    
-    # 2. Catch the code from the provider
-    code = request.GET.get('code')
+
+    code = request.GET.get("code")
     if not code:
-        return JsonResponse({'error': 'No code provided'}, status=400)
-    
-    client_id = os.environ.get('OAUTH_CLIENT_ID')
-    client_secret = os.environ.get('OAUTH_CLIENT_SECRET')
+        return JsonResponse({"error": "Invalid authorization response."}, status=400)
+
+    state_param = request.GET.get("state")
+    expected_state = request.session.pop("oauth_state", None)
+    code_verifier = request.session.pop("oauth_pkce_verifier", None)
+
+    if (
+        not state_param
+        or not expected_state
+        or not secrets.compare_digest(state_param, expected_state)
+        or not code_verifier
+    ):
+        return JsonResponse({"error": "Invalid or expired OAuth session."}, status=400)
+
+    client_id = os.environ.get("OAUTH_CLIENT_ID")
+    client_secret = os.environ.get("OAUTH_CLIENT_SECRET")
+    if not client_id or not client_secret:
+        return JsonResponse({"error": "OAuth client is not configured."}, status=500)
 
     payload = {
-        'grant_type': 'authorization_code',
-        'code': code,
-        'client_id': client_id,
-        'client_secret': client_secret,
-        'redirect_uri': f"{base_url}/auth/callback/",
-        'code_verifier': 'uv_waterloo_rocks',
+        "grant_type": "authorization_code",
+        "code": code,
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "redirect_uri": f"{base_url}/auth/callback/",
+        "code_verifier": code_verifier,
     }
-    print(f"DEBUG: Secret being sent is: {os.environ.get('OAUTH_CLIENT_SECRET')[:5]}...") # Prints first 5 chars
 
     try:
-        response = requests.post(token_url, data=payload)
-        return JsonResponse(response.json())
-    except Exception as e:
-        print(str(e))
-        return JsonResponse({'error': str(e)}, status=500)
-    
+        response = requests.post(token_url, data=payload, timeout=30)
+    except requests.RequestException:
+        return JsonResponse(
+            {"error": "Token request failed. Try again later."},
+            status=502,
+        )
+
+    try:
+        body = response.json()
+    except ValueError:
+        return JsonResponse({"error": "Invalid token server response."}, status=502)
+
+    if response.status_code >= 400:
+        return JsonResponse(
+            {"error": "Authorization failed.", "details": body},
+            status=response.status_code,
+        )
+
+    return JsonResponse(body)
+
 
 def home(request):
-    universities = []
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute('SELECT DISTINCT university_name FROM grade_results ORDER BY university_name')
-            rows = cursor.fetchall()
-            universities = [r[0] for r in rows if r[0]]
-    except Exception:
-        universities = []
+    universities = distinct_university_names()
 
     context = {
         "app_name": "UKNOW",
@@ -101,62 +175,7 @@ def result(request):
     if not name:
         return render(request, "frontendapp/result.html", {"error": "Please provide a program name."})
 
-    sql = "SELECT * FROM grade_results WHERE LOWER(program) LIKE %s"
-    params = [f"%{name.lower()}%"]
-    if uni:
-        sql += " AND university_name = %s"
-        params.append(uni)
-    sql += " LIMIT 1000"
-
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute(sql, params)
-            rows = cursor.fetchall()
-            cols = [c[0] for c in cursor.description]
-            results = [dict(zip(cols, r)) for r in rows]
-            newresults = []
-            for row in results:
-                if(row['acceptance_status'] == 'accepted'):
-                    flag = True
-                    for new in newresults:
-                        if(row['university_name'] == new[1] and row['program'] == new[0]):
-                            new[2] = (new[2] * new[3] + row['admission_average'])/(new[3] + 1)
-                            new[3] += 1
-                            flag = False
-
-                    if(flag):
-                        newresults.append([row['program'], row['university_name'], row['admission_average'], 1])
-
-            for new in newresults:
-                new[2] = round(new[2], 1)
-
-            results = []
-            for idx, new in enumerate(newresults, start=1):
-                avg_val = new[2]
-                risk = None
-                try:
-                    if user_avg is not None and avg_val is not None:
-                        diff = user_avg - avg_val
-                        if abs(diff) <= 3:
-                            risk = 'match'
-                        elif diff > 3:
-                            risk = 'safe'
-                        else:
-                            risk = 'risky'
-                except Exception:
-                    risk = None
-
-                results.append({
-                    'id': idx,
-                    'program': new[0],
-                    'university_name': new[1],
-                    'admission_average': avg_val,
-                    'risk': risk,
-                })
-
-    except Exception as e:
-        print(e)
-        results = []
+    results = aggregated_search_with_risk(name, uni or None, user_avg)
 
     paginator = Paginator(results, 15)
     page_number = request.GET.get('page', 1)
@@ -202,7 +221,7 @@ def detail(request):
         'description': description, 
         'link': link
     })
-
+@login_required(login_url='login')
 def submit(request):
     auto_username = "anonymous"
     if getattr(request, "user", None) and request.user.is_authenticated:
@@ -230,44 +249,29 @@ def submit(request):
             if not form_data[key]:
                 errors[key] = "This field is required."
 
-        if "gpa" not in errors:
-            try:
-                gpa_value = float(form_data["gpa"])
-                if gpa_value < 0 or gpa_value > 100:
-                    errors["gpa"] = "GPA must be between 0 and 100."
-            except ValueError:
-                errors["gpa"] = "GPA must be a number."
-        
-        # ProgramCheckingSource = Path(settings.BASE_DIR).parent / 'source_files' / 'new_program_descriptions.csv'
-        with connection.cursor() as cursor:
-            cursor.execute('SELECT university, program FROM program_descriptions')
-            rows = cursor.fetchall()  # returns [("McGill", "Bachelor of Music"), ...]
-    
-            # Build a set of (university, program) tuples for fast lookup
-            valid_pairs = {(row[0].lower(), row[1].lower()) for row in rows}
-    
-            user_pair = (form_data["uni"].lower(), form_data["name"].lower())
-    
-            if user_pair not in valid_pairs:
-                errors["name"] = "Program name must be valid."
-                errors["uni"] = "University name must be valid"
-                print(errors)
-            # if form_data["name"].lower() not in programlist:
-            #     errors["name"] = "Program name must be valid."
-            #     print(errors)
-            # if form_data["uni"].lower() not in universitylist:
-            #     errors["uni"] = "University name must be valid"
-            #     print(errors)
+        valid_pairs = fetch_valid_uni_program_pairs()
+        errors.update(
+            collect_submit_errors(
+                form_data["name"],
+                form_data["gpa"],
+                form_data["uni"],
+                valid_pairs,
+            )
+        )
 
-    # finally do the database action here
-    if not errors:
-        PUSH_MESSAGE = ('INSERT INTO grade_results (acceptance_year, program, university_name, admission_average, acceptance_status, userid) VALUES (%s, %s, %s, %s, %s, %s)')
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute(PUSH_MESSAGE, [form_data["year"], form_data["name"], form_data["uni"], form_data["gpa"], "accepted", form_data["username"]])
-        except Exception as e:
-            errors["dberror"] = str(e)
-    success = not errors
+        if not errors:
+            try:
+                insert_grade_submission(
+                    form_data["year"],
+                    form_data["name"],
+                    form_data["uni"],
+                    form_data["gpa"],
+                    form_data["username"],
+                )
+            except Exception as e:
+                errors["dberror"] = str(e)
+
+    success = request.method == "POST" and not errors
     return render(
         request,
         "frontendapp/submit.html",
