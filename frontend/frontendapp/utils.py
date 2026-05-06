@@ -1,16 +1,18 @@
 import matplotlib.pyplot as pyplot
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 import base64
 from io import BytesIO
 from django.db import connection
 
-def graph_to_img():
-    buffer = BytesIO()
-    pyplot.savefig(buffer, format='png')
-    buffer.seek(0)
-    png = buffer.getvalue()
-    graph = base64.b64encode(png).decode('utf-8')
-    buffer.close()
-    return(graph)
+# def graph_to_img():
+#     buffer = BytesIO()
+#     pyplot.savefig(buffer, format='png')
+#     buffer.seek(0)
+#     png = buffer.getvalue()
+#     graph = base64.b64encode(png).decode('utf-8')
+#     buffer.close()
+#     return(graph)
 
 def getplot(name, uni):
     sql = "SELECT * FROM grade_results WHERE LOWER(program) LIKE %s"
@@ -49,19 +51,40 @@ def getplot(name, uni):
     if(len(years) == 0):
         return(None)
     #GRAPH FORMATTING GOES HERE
-    pyplot.switch_backend('AGG')
-    pyplot.figure(figsize = (10, 5))
-    pyplot.title("Acceptance Averages By Year")
-    pyplot.bar(years, avgs)
-    pyplot.xlabel("Year")
-    pyplot.ylabel("Average")
-    pyplot.xticks(years)
-    pyplot.ylim(50, 100)
-    pyplot.yticks(range(50,101, 5))
+    # pyplot.switch_backend('AGG')
+    fig = Figure(figsize = (10, 5))
+    axis = fig.add_subplot(111)
+    axis.set_xlabel("Year")
+    axis.set_ylabel("Average")
+    axis.set_title("Acceptance Averages By Year")
+    axis.bar(years, avgs)
+    axis.set_xticks(years)
+    axis.set_yticks(range(50, 101, 5))
     for p in range(len(avgs)):
-        pyplot.annotate(round(avgs[p], 2), xy=(years[p],avgs[p]),
+        axis.annotate(round(avgs[p], 2), xy=(years[p],avgs[p]),
                 ha='center',
                 va='center',
                 xytext=(0, 10),
                 textcoords='offset points')
-    return graph_to_img()
+    # pyplot.title("Acceptance Averages By Year")
+    # pyplot.bar(years, avgs)
+    # pyplot.xlabel("Year")
+    # pyplot.ylabel("Average")
+    # pyplot.xticks(years)
+    # pyplot.ylim(50, 100)
+    # pyplot.yticks(range(50,101, 5))
+    # for p in range(len(avgs)):
+    #     pyplot.annotate(round(avgs[p], 2), xy=(years[p],avgs[p]),
+    #             ha='center',
+    #             va='center',
+    #             xytext=(0, 10),
+    #             textcoords='offset points')
+    # Convert figure to base64 string
+    canvas = FigureCanvasAgg(fig)
+    buffer = BytesIO()
+    canvas.print_png(buffer)
+    buffer.seek(0)
+    png = buffer.getvalue()
+    graph = base64.b64encode(png).decode('utf-8')
+    buffer.close()
+    return graph
