@@ -1,4 +1,3 @@
-from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.db import connection
 from django.core.paginator import Paginator
@@ -9,6 +8,9 @@ import os
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required
+import csv
+from pathlib import Path
+from django.conf import settings
 
 def auth_page(request):
     login_form = AuthenticationForm(request, data=request.POST or None)
@@ -219,7 +221,7 @@ def submit(request):
 
     if request.method == "POST":
         form_data["username"] = auto_username
-        form_data["year"] = auto_year
+        form_data["year"] = auto_year 
         form_data["name"] = request.POST.get("name", "").strip()
         form_data["gpa"] = request.POST.get("gpa", "").strip()
         form_data["uni"] = request.POST.get("uni", "").strip()
@@ -235,9 +237,37 @@ def submit(request):
                     errors["gpa"] = "GPA must be between 0 and 100."
             except ValueError:
                 errors["gpa"] = "GPA must be a number."
+        
+        # ProgramCheckingSource = Path(settings.BASE_DIR).parent / 'source_files' / 'new_program_descriptions.csv'
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT university, program FROM program_descriptions')
+            rows = cursor.fetchall()  # returns [("McGill", "Bachelor of Music"), ...]
+    
+            # Build a set of (university, program) tuples for fast lookup
+            valid_pairs = {(row[0].lower(), row[1].lower()) for row in rows}
+    
+            user_pair = (form_data["uni"].lower(), form_data["name"].lower())
+    
+            if user_pair not in valid_pairs:
+                errors["name"] = "Program name must be valid."
+                errors["uni"] = "University name must be valid"
+                print(errors)
+            # if form_data["name"].lower() not in programlist:
+            #     errors["name"] = "Program name must be valid."
+            #     print(errors)
+            # if form_data["uni"].lower() not in universitylist:
+            #     errors["uni"] = "University name must be valid"
+            #     print(errors)
 
-        success = not errors
-
+    # finally do the database action here
+    if not errors:
+        PUSH_MESSAGE = ('INSERT INTO grade_results (acceptance_year, program, university_name, admission_average, acceptance_status, userid) VALUES (%s, %s, %s, %s, %s, %s)')
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(PUSH_MESSAGE, [form_data["year"], form_data["name"], form_data["uni"], form_data["gpa"], "accepted", form_data["username"]])
+        except Exception as e:
+            errors["dberror"] = str(e)
+    success = not errors
     return render(
         request,
         "frontendapp/submit.html",
@@ -247,3 +277,7 @@ def submit(request):
             "success": success,
         },
     )
+    
+@login_required(login_url='login')
+def profile(request):
+    return render(request, "frontendapp/profile.html")
