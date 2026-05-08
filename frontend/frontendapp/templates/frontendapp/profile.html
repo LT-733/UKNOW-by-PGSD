@@ -30,6 +30,14 @@
             background-size: 100px 100px;
         }
 
+        header {
+            position: absolute;
+            top: 2vh;
+            left: 2vw;
+            right: 2vw;
+            z-index: 11;
+        }
+
         .page {
             min-height: 100vh;
             display: flex;
@@ -113,11 +121,11 @@
     </style>
 </head>
 <body>
+    {% load static %}
     <header>
         <div class="headerRow">
-            <a class="logoLink" href="/">
-                {% load static %}
-                <img class="siteLogo" src="../../static/frontendapp/logo.png" alt="UKNOW logo">
+            <a class="logoLink" href="/" aria-label="UKNOW home">
+                <img class="siteLogo" src="{% static 'frontendapp/logo.png' %}" alt="UKNOW logo">
             </a>
         </div>
     </header>
