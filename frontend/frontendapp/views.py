@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.http import JsonResponse
 from django.db import connection
 from django.core.paginator import Paginator
 from datetime import datetime
@@ -203,11 +204,35 @@ def detail(request):
         'link': link
     })
 
+@login_required(login_url='login')
 def submit(request):
     auto_username = "anonymous"
     if getattr(request, "user", None) and request.user.is_authenticated:
         auto_username = request.user.get_username() or "anonymous"
     auto_year = str(datetime.now().year)
+
+    uni_program_map = {}
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                'SELECT DISTINCT university_name, program FROM grade_results '
+                'WHERE university_name IS NOT NULL AND university_name != %s '
+                'AND program IS NOT NULL AND program != %s',
+                ["", ""],
+            )
+            rows = cursor.fetchall()
+        for university, program in rows:
+            if not university or not program:
+                continue
+            uni_program_map.setdefault(university, set()).add(program)
+        uni_program_map = {
+            university: sorted(programs, key=lambda p: p.lower())
+            for university, programs in sorted(uni_program_map.items(), key=lambda item: item[0].lower())
+        }
+    except Exception:
+        uni_program_map = {}
+
+    universities = list(uni_program_map.keys())
 
     form_data = {
         "username": auto_username,
@@ -239,19 +264,18 @@ def submit(request):
                 errors["gpa"] = "GPA must be a number."
         
         # ProgramCheckingSource = Path(settings.BASE_DIR).parent / 'source_files' / 'new_program_descriptions.csv'
-        with connection.cursor() as cursor:
-            cursor.execute('SELECT university, program FROM program_descriptions')
-            rows = cursor.fetchall()  # returns [("McGill", "Bachelor of Music"), ...]
-    
-            # Build a set of (university, program) tuples for fast lookup
-            valid_pairs = {(row[0].lower(), row[1].lower()) for row in rows}
-    
-            user_pair = (form_data["uni"].lower(), form_data["name"].lower())
-    
-            if user_pair not in valid_pairs:
-                errors["name"] = "Program name must be valid."
-                errors["uni"] = "University name must be valid"
-                print(errors)
+        valid_pairs = {
+            (university.lower(), program.lower())
+            for university, programs in uni_program_map.items()
+            for program in programs
+        }
+
+        user_pair = (form_data["uni"].lower(), form_data["name"].lower())
+
+        if user_pair not in valid_pairs:
+            errors["name"] = "Program name must be valid for the selected university."
+            errors["uni"] = "University name must be valid."
+            print(errors)
             # if form_data["name"].lower() not in programlist:
             #     errors["name"] = "Program name must be valid."
             #     print(errors)
@@ -260,14 +284,14 @@ def submit(request):
             #     print(errors)
 
     # finally do the database action here
-    if not errors:
+    if request.method == "POST" and not errors:
         PUSH_MESSAGE = ('INSERT INTO grade_results (acceptance_year, program, university_name, admission_average, acceptance_status, userid) VALUES (%s, %s, %s, %s, %s, %s)')
         try:
             with connection.cursor() as cursor:
                 cursor.execute(PUSH_MESSAGE, [form_data["year"], form_data["name"], form_data["uni"], form_data["gpa"], "accepted", form_data["username"]])
         except Exception as e:
             errors["dberror"] = str(e)
-    success = not errors
+    success = request.method == "POST" and not errors
     return render(
         request,
         "frontendapp/submit.html",
@@ -275,6 +299,8 @@ def submit(request):
             "form_data": form_data,
             "errors": errors,
             "success": success,
+            "universities": universities,
+            "uni_program_map": uni_program_map,
         },
     )
     

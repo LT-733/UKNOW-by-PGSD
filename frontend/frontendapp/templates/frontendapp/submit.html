@@ -185,7 +185,8 @@
             color: #1f2937;
         }
 
-        input {
+        input,
+        select {
             width: 100%;
             border: 1px solid #d4d8e2;
             border-radius: 10px;
@@ -196,7 +197,8 @@
             transition: border 0.15s ease, box-shadow 0.15s ease;
         }
 
-        input:focus {
+        input:focus,
+        select:focus {
             border-color: #8c1515;
             box-shadow: 0 0 0 3px rgba(140, 21, 21, 0.15);
         }
@@ -291,7 +293,12 @@
                 <div class="fieldRow">
                     <div>
                         <label for="uni">University</label>
-                        <input id="uni" name="uni" type="text" value="{{ form_data.uni }}" placeholder="e.g. University of Toronto" required />
+                        <select id="uni" name="uni" required>
+                            <option value="">Select a university</option>
+                            {% for university in universities %}
+                                <option value="{{ university }}" {% if form_data.uni == university %}selected{% endif %}>{{ university }}</option>
+                            {% endfor %}
+                        </select>
                         {% if errors.uni %}
                             <div class="error">{{ errors.uni }}</div>
                         {% endif %}
@@ -300,7 +307,9 @@
 
                 <div class="fieldFull">
                     <label for="name">Program Name</label>
-                    <input id="name" name="name" type="text" value="{{ form_data.name }}" placeholder="e.g. Computer Science" required />
+                    <select id="name" name="name" required>
+                        <option value="">Select a program</option>
+                    </select>
                     {% if errors.name %}
                         <div class="error">{{ errors.name }}</div>
                     {% endif %}
@@ -333,5 +342,46 @@
             {% endif %}
         </main>
     </div>
+
+    {{ uni_program_map|json_script:"uni-program-map" }}
+    <script>
+        (function () {
+            const uniSelect = document.getElementById("uni");
+            const programSelect = document.getElementById("name");
+            const selectedProgram = "{{ form_data.name|escapejs }}";
+            const uniProgramMap = JSON.parse(document.getElementById("uni-program-map").textContent);
+
+            function populatePrograms(university, preferredProgram) {
+                const programs = uniProgramMap[university] || [];
+                programSelect.innerHTML = "";
+
+                const placeholder = document.createElement("option");
+                placeholder.value = "";
+                placeholder.textContent = programs.length ? "Select a program" : "Select a university first";
+                programSelect.appendChild(placeholder);
+
+                programs.forEach((program) => {
+                    const option = document.createElement("option");
+                    option.value = program;
+                    option.textContent = program;
+                    if (preferredProgram && preferredProgram === program) {
+                        option.selected = true;
+                    }
+                    programSelect.appendChild(option);
+                });
+
+                programSelect.disabled = programs.length === 0;
+                if (!preferredProgram || !programs.includes(preferredProgram)) {
+                    programSelect.value = "";
+                }
+            }
+
+            uniSelect.addEventListener("change", function () {
+                populatePrograms(uniSelect.value, "");
+            });
+
+            populatePrograms(uniSelect.value, selectedProgram);
+        })();
+    </script>
 </body>
 </html>
